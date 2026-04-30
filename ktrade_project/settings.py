@@ -12,7 +12,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-votre-clé-secrète-i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['*']  # À restreindre en production
+ALLOWED_HOSTS = ['*', 'mkane.pythonanywhere.com']  # À restreindre en production
 
 # Application definition
 INSTALLED_APPS = [
