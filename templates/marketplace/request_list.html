@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Demandes d'achat - Ktrade Connect{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Demandes d'achat</h1>
+    <p>Trouvez des acheteurs pour vos produits ou créez vos propres demandes</p>
+    
+    {% if user.is_authenticated and user.profile.user_type == 'vendeur' %}
+        <a href="{% url 'request-create' %}" class="btn-create">
+            <i class="fas fa-plus-circle"></i> Créer une demande
+        </a>
+    {% endif %}
+</div>
+
+<div class="marketplace-layout">
+    <!-- Sidebar Filtres -->
+    <aside class="filters-sidebar">
+        <h3>Filtres</h3>
+        <form method="GET" action="{% url 'request-list' %}" class="filters-form">
+            <!-- Catégorie -->
+            <div class="filter-group">
+                <label>Catégorie</label>
+                <select name="category" class="filter-select">
+                    <option value="">Toutes les catégories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Pays -->
+            <div class="filter-group">
+                <label>Pays souhaité</label>
+                <input type="text" name="country" class="filter-input" 
+                       value="{{ request.GET.country|default:'' }}" 
+                       placeholder="Ex: France, Chine...">
+            </div>
+            
+            <!-- Budget -->
+            <div class="filter-group">
+                <label>Budget max (USD)</label>
+                <input type="number" name="max_budget" class="filter-input" 
+                       value="{{ request.GET.max_budget|default:'' }}" 
+                       placeholder="Budget maximum">
+            </div>
+            
+            <button type="submit" class="btn-filter">Appliquer les filtres</button>
+            <a href="{% url 'request-list' %}" class="btn-reset">Réinitialiser</a>
+        </form>
+    </aside>
+    
+    <!-- Liste des demandes -->
+    <div class="requests-content">
+        <!-- En-tête -->
+        <div class="requests-header">
+            <p class="requests-count">{{ page_obj.paginator.count }} demandes trouvées</p>
+            
+            <div class="sort-options">
+                <label>Trier par:</label>
+                <select name="sort" class="sort-select" onchange="window.location.href=this.value">
+                    <option value="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}sort=-created_at" 
+                            {% if request.GET.sort == '-created_at' %}selected{% endif %}>
+                        Plus récentes
+                    </option>
+                    <option value="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}sort=desired_quantity"
+                            {% if request.GET.sort == 'desired_quantity' %}selected{% endif %}>
+                        Quantité croissante
+                    </option>
+                    <option value="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}sort=-desired_quantity"
+                            {% if request.GET.sort == '-desired_quantity' %}selected{% endif %}>
+                        Quantité décroissante
+                    </option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Grille des demandes -->
+        <div class="requests-grid">
+            {% for request in requests %}
+                <div class="request-card">
+                    <div class="request-header">
+                        <span class="request-category">{{ request.category.name }}</span>
+                        <span class="request-date">{{ request.created_at|timesince }}</span>
+                    </div>
+                    
+                    <h3><a href="{% url 'request-detail' request.id %}">{{ request.product_name }}</a></h3>
+                    
+                    <div class="request-details">
+                        <p>
+                            <i class="fas fa-box"></i>
+                            <strong>Quantité:</strong> {{ request.desired_quantity }}
+                        </p>
+                        <p>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <strong>Pays:</strong> {{ request.desired_country }}
+                        </p>
+                        {% if request.max_budget %}
+                            <p>
+                                <i class="fas fa-money-bill"></i>
+                                <strong>Budget max:</strong> {{ request.max_budget }} {{ request.budget_currency }}
+                            </p>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="request-description">{{ request.description|truncatewords:30 }}</p>
+                    
+                    <div class="request-footer">
+                        <div class="request-buyer">
+                            {% if request.buyer.profile.profile_picture %}
+                                <img src="{{ request.buyer.profile.profile_picture.url }}" alt="{{ request.buyer.username }}" class="buyer-avatar">
+                            {% else %}
+                                <i class="fas fa-user-circle"></i>
+                            {% endif %}
+                            <a href="{% url 'public-profile' request.buyer.id %}">{{ request.buyer.username }}</a>
+                        </div>
+                        
+                        <a href="{% url 'request-detail' request.id %}" class="btn-view">
+                            Voir détails <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="no-results">
+                    <i class="fas fa-search fa-3x"></i>
+                    <h3>Aucune demande trouvée</h3>
+                    <p>Essayez de modifier vos filtres de recherche.</p>
+                    
+                    {% if user.is_authenticated and user.profile.user_type == 'vendeur' %}
+                        <a href="{% url 'request-create' %}" class="btn-create">
+                            Créer votre première demande
+                        </a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" class="page-link">&laquo;</a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" class="page-link">&lsaquo;</a>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="page-link active">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" class="page-link">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" class="page-link">&rsaquo;</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" class="page-link">&raquo;</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .btn-create {
+        display: inline-block;
+        padding: 1rem 2rem;
+        background: var(--primary-color);
+        color: white;
+        text-decoration: none;
+        border-radius: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    .requests-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .request-card {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+        transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .request-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+    
+    .request-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .request-category {
+        background: var(--background-light);
+        color: var(--primary-color);
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .request-date {
+        color: var(--text-light);
+        font-size: 0.85rem;
+    }
+    
+    .request-card h3 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .request-card h3 a {
+        color: var(--text-dark);
+        text-decoration: none;
+    }
+    
+    .request-details {
+        background: var(--background-light);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .request-details p {
+        margin: 0.5rem 0;
+        color: var(--text-dark);
+    }
+    
+    .request-details i {
+        width: 20px;
+        color: var(--primary-color);
+        margin-right: 0.5rem;
+    }
+    
+    .request-description {
+        color: var(--text-light);
+        margin-bottom: 1rem;
+        flex: 1;
+    }
+    
+    .request-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .request-buyer {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .buyer-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .request-buyer a {
+        color: var(--text-dark);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .btn-view {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}

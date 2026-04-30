@@ -1,0 +1,376 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profil de {{ profile_user.username }}{% endblock %}
+
+{% block content %}
+<div class="public-profile-container">
+    <div class="public-profile-cover">
+        <div class="public-avatar-wrapper">
+            {% if profile_user.profile.profile_picture %}
+                <img src="{{ profile_user.profile.profile_picture.url }}" alt="{{ profile_user.username }}" class="public-avatar">
+            {% else %}
+                <div class="public-avatar-placeholder">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="public-profile-header-info">
+        <h1>{{ profile_user.profile.company_name|default:profile_user.username }}</h1>
+        <p class="profile-type">
+            {% if profile_user.profile.user_type == 'fournisseur' %}
+                <span class="badge badge-supplier"><i class="fas fa-store"></i> Fournisseur</span>
+            {% else %}
+                <span class="badge badge-buyer"><i class="fas fa-shopping-cart"></i> Acheteur</span>
+            {% endif %}
+        </p>
+        <p class="profile-location">
+            <i class="fas fa-map-marker-alt"></i>
+            {{ profile_user.profile.city|default:"Ville non précisée" }}, {{ profile_user.profile.country|default:"Pays non précisé" }}
+        </p>
+
+        <div class="contact-actions">
+            <a href="mailto:{{ profile_user.email }}" class="btn-contact btn-email" title="Envoyer un email">
+                <i class="fas fa-envelope"></i> <span>Email</span>
+            </a>
+            
+            {% if profile_user.profile.phone %}
+                <a href="https://wa.me/{{ profile_user.profile.phone|urlencode|default:''|cut:'+'|cut:' ' }}" target="_blank" rel="noopener noreferrer" class="btn-contact btn-whatsapp" title="Contacter sur WhatsApp">
+                    <i class="fab fa-whatsapp"></i> <span>WhatsApp</span>
+                </a>
+                
+                <button type="button" class="btn-contact btn-wechat" onclick="copyWeChat('{{ profile_user.profile.phone }}')" title="Copier l'ID WeChat">
+                    <i class="fab fa-weixin"></i> <span>WeChat</span>
+                </button>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="public-profile-content">
+        <div class="profile-sidebar">
+            <div class="profile-card">
+                <h3><i class="fas fa-address-book"></i> Coordonnées</h3>
+                <div class="contact-info-list">
+                    <p><i class="fas fa-envelope"></i> <strong>Email:</strong> <br> <a href="mailto:{{ profile_user.email }}">{{ profile_user.email }}</a></p>
+                    {% if profile_user.profile.phone %}
+                        <p><i class="fas fa-phone"></i> <strong>Téléphone:</strong> <br> <a href="tel:{{ profile_user.profile.phone }}">{{ profile_user.profile.phone }}</a></p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if profile_user.profile.bio %}
+                <div class="profile-card">
+                    <h3><i class="fas fa-info-circle"></i> À propos</h3>
+                    <p class="bio-text">{{ profile_user.profile.bio|linebreaks }}</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="profile-main">
+            {% if profile_user.profile.user_type == 'fournisseur' %}
+                <div class="section-header">
+                    <h2><i class="fas fa-box-open"></i> Produits de {{ profile_user.username }}</h2>
+                </div>
+                <div class="products-grid">
+                    {% for product in products %}
+                        <div class="item-card">
+                            <div class="item-card-body">
+                                <h3><a href="{% url 'product-detail' product.id %}">{{ product.name }}</a></h3>
+                                <p class="price-tag">{{ product.estimated_price }} {{ product.price_currency }}</p>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="empty-state">
+                            <i class="fas fa-box text-muted fa-3x mb-3"></i>
+                            <p>Aucun produit disponible pour le moment.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="section-header">
+                    <h2><i class="fas fa-clipboard-list"></i> Demandes de {{ profile_user.username }}</h2>
+                </div>
+                <div class="requests-grid">
+                    {% for request in requests %}
+                        <div class="item-card">
+                            <div class="item-card-body">
+                                <h3><a href="{% url 'request-detail' request.id %}">{{ request.product_name }}</a></h3>
+                                <p class="qty-tag"><i class="fas fa-sort-amount-up"></i> Quantité: {{ request.desired_quantity }}</p>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard text-muted fa-3x mb-3"></i>
+                            <p>Aucune demande disponible pour le moment.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .public-profile-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    /* Cover & Header */
+    .public-profile-cover {
+        height: 200px;
+        background: linear-gradient(135deg, var(--primary-color), #4f46e5);
+        border-radius: 1rem 1rem 0 0;
+        position: relative;
+        margin-bottom: 5rem; /* Espace pour l'avatar qui dépasse */
+    }
+
+    .public-avatar-wrapper {
+        position: absolute;
+        bottom: -60px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 5px;
+        border-radius: 50%;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .public-avatar, .public-avatar-placeholder {
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .public-avatar-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--background-light);
+        color: var(--text-light);
+        font-size: 5rem;
+    }
+
+    .public-profile-header-info {
+        text-align: center;
+        margin-bottom: 3rem;
+        background: white;
+        padding: 1rem 2rem 2rem;
+        border-radius: 0 0 1rem 1rem;
+        box-shadow: var(--shadow);
+        margin-top: -5rem;
+        padding-top: 5rem;
+    }
+
+    .public-profile-header-info h1 {
+        font-size: 1.8rem;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-location {
+        color: var(--text-light);
+        margin-top: 0.5rem;
+    }
+
+    /* Boutons de contact */
+    .contact-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-contact {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        color: white;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        font-size: 0.95rem;
+    }
+
+    .btn-contact:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+        color: white;
+    }
+
+    .btn-email { background-color: #ea4335; }
+    .btn-whatsapp { background-color: #25d366; }
+    .btn-wechat { background-color: #07c160; }
+
+    /* Layout du contenu */
+    .public-profile-content {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 2rem;
+    }
+
+    .profile-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-card h3 {
+        color: var(--text-dark);
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .contact-info-list p {
+        margin-bottom: 0.8rem;
+        color: var(--text-light);
+    }
+    
+    .contact-info-list a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    /* Grilles d'items */
+    .section-header h2 {
+        font-size: 1.4rem;
+        color: var(--text-dark);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .products-grid, .requests-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .item-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: var(--shadow);
+        transition: transform 0.3s ease;
+        overflow: hidden;
+        border: 1px solid transparent;
+    }
+
+    .item-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary-color);
+    }
+
+    .item-card-body {
+        padding: 1.5rem;
+    }
+
+    .item-card h3 a {
+        color: var(--text-dark);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .price-tag {
+        color: var(--primary-color);
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+    .qty-tag {
+        color: var(--text-light);
+        font-weight: 500;
+    }
+
+    .empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 3rem;
+        background: white;
+        border-radius: 1rem;
+        color: var(--text-light);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .public-profile-content {
+            grid-template-columns: 1fr; /* Passage en 1 colonne */
+        }
+        
+        .public-profile-cover {
+            height: 150px;
+        }
+
+        .btn-contact {
+            flex: 1 1 calc(50% - 1rem); /* Prend toute la largeur sur mobile */
+            justify-content: center;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .btn-contact {
+            flex: 1 1 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Fonction pour copier le numéro WeChat
+    function copyWeChat(phoneId) {
+        if(!phoneId || phoneId === 'None' || phoneId.trim() === '') {
+            alert('L\'utilisateur n\'a pas renseigné de numéro de téléphone pour WeChat.');
+            return;
+        }
+        
+        navigator.clipboard.writeText(phoneId).then(() => {
+            // Affichage d'une petite notification fluide au lieu d'un simple alert agressif
+            const notif = document.createElement('div');
+            notif.innerHTML = `<i class="fas fa-check-circle"></i> ID WeChat (${phoneId}) copié dans le presse-papier !`;
+            notif.style.position = 'fixed';
+            notif.style.bottom = '20px';
+            notif.style.left = '50%';
+            notif.style.transform = 'translateX(-50%)';
+            notif.style.background = '#07c160';
+            notif.style.color = 'white';
+            notif.style.padding = '12px 24px';
+            notif.style.borderRadius = '30px';
+            notif.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            notif.style.zIndex = '9999';
+            notif.style.transition = 'opacity 0.3s ease';
+            
+            document.body.appendChild(notif);
+            
+            setTimeout(() => {
+                notif.style.opacity = '0';
+                setTimeout(() => document.body.removeChild(notif), 300);
+            }, 3000);
+        }).catch(err => {
+            alert('ID WeChat : ' + phoneId);
+        });
+    }
+</script>
+{% endblock %}

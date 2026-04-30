@@ -1,0 +1,736 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tableau de bord Fournisseur - Ktrade Connect{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- En-tête du tableau de bord -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1>Bienvenue, {{ user.profile.company_name|default:user.username }} !</h1>
+            <p>Gérez vos produits, suivez vos ventes et développez votre activité</p>
+        </div>
+        
+        <div class="header-actions">
+            <a href="{% url 'product-create' %}" class="btn-primary">
+                <i class="fas fa-plus-circle"></i>
+                Nouveau produit
+            </a>
+        </div>
+    </div>
+    
+    <!-- Cartes de statistiques -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-value">{{ products_count }}</span>
+                <span class="stat-label">Produits actifs</span>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-value">{{ total_orders|default:"0" }}</span>
+                <span class="stat-label">Commandes</span>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-value">{{ interested_buyers|default:"0" }}</span>
+                <span class="stat-label">Acheteurs intéressés</span>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-value">4.8</span>
+                <span class="stat-label">Note moyenne</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Section principale du tableau de bord -->
+    <div class="dashboard-grid">
+        <!-- Colonne de gauche -->
+        <div class="dashboard-main">
+            <!-- Graphique d'activité -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-line"></i> Activité récente</h3>
+                    <select class="chart-period" id="chart-period">
+                        <option value="7">7 derniers jours</option>
+                        <option value="30">30 derniers jours</option>
+                        <option value="90">90 derniers jours</option>
+                    </select>
+                </div>
+                <div class="card-content">
+                    <canvas id="activityChart" height="200"></canvas>
+                </div>
+            </div>
+            
+            <!-- Liste des produits récents -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-box"></i> Vos produits récents</h3>
+                    <a href="{% url 'product-list' %}?supplier={{ user.id }}" class="view-all">
+                        Voir tout <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="card-content">
+                    {% if recent_products %}
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Produit</th>
+                                    <th>Catégorie</th>
+                                    <th>Prix</th>
+                                    <th>Stock</th>
+                                    <th>Vues</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in recent_products %}
+                                    <tr>
+                                        <td>
+                                            <div class="product-info-cell">
+                                                {% if product.image %}
+                                                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-thumb">
+                                                {% endif %}
+                                                <a href="{% url 'product-detail' product.id %}">{{ product.name|truncatechars:30 }}</a>
+                                            </div>
+                                        </td>
+                                        <td>{{ product.category.name }}</td>
+                                        <td>{{ product.estimated_price }} {{ product.price_currency }}</td>
+                                        <td>{{ product.quantity_available }}</td>
+                                        <td>{{ product.views|default:"0" }}</td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <a href="{% url 'product-update' product.id %}" class="btn-icon" title="Modifier">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{% url 'product-delete' product.id %}" class="btn-icon delete" title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-box-open fa-3x"></i>
+                            <p>Vous n'avez pas encore de produits</p>
+                            <a href="{% url 'product-create' %}" class="btn-primary">Ajouter un produit</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Demandes d'achat récentes -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-clipboard-list"></i> Demandes d'achat récentes</h3>
+                    <a href="{% url 'request-list' %}" class="view-all">
+                        Voir tout <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="card-content">
+                    {% if recent_requests %}
+                        <div class="requests-list">
+                            {% for request in recent_requests %}
+                                <div class="request-item">
+                                    <div class="request-info">
+                                        <h4>
+                                            <a href="{% url 'request-detail' request.id %}">{{ request.product_name }}</a>
+                                        </h4>
+                                        <div class="request-meta">
+                                            <span><i class="fas fa-box"></i> {{ request.desired_quantity }}</span>
+                                            <span><i class="fas fa-map-marker-alt"></i> {{ request.desired_country }}</span>
+                                            <span><i class="fas fa-user"></i> {{ request.buyer.username }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="request-action">
+                                        <a href="{% url 'start-chat' request.buyer.id %}" class="btn-contact">
+                                            <i class="fas fa-envelope"></i> Contacter
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="no-data">Aucune demande récente</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Colonne de droite -->
+        <div class="dashboard-sidebar">
+            <!-- Profil fournisseur -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-store"></i> Votre profil</h3>
+                    <a href="{% url 'profile' %}" class="edit-link">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                </div>
+                <div class="card-content">
+                    <div class="supplier-profile">
+                        {% if user.profile.profile_picture %}
+                            <img src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}" class="profile-avatar">
+                        {% else %}
+                            <div class="profile-avatar-placeholder">
+                                <i class="fas fa-store fa-3x"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="profile-details">
+                            <h4>{{ user.profile.company_name|default:user.username }}</h4>
+                            <p><i class="fas fa-map-marker-alt"></i> {{ user.profile.city }}, {{ user.profile.country }}</p>
+                            <p><i class="fas fa-phone"></i> {{ user.profile.phone|default:"Non renseigné" }}</p>
+                            <p><i class="fas fa-envelope"></i> {{ user.email }}</p>
+                        </div>
+                        
+                        <div class="profile-progress">
+                            <div class="progress-label">
+                                <span>Complétion du profil</span>
+                                <span>{{ profile_completion }}%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: {{ profile_completion }}%"></div>
+                            </div>
+                            
+                            {% if profile_completion < 100 %}
+                                <p class="progress-hint">
+                                    <i class="fas fa-info-circle"></i>
+                                    Complétez votre profil pour gagner en visibilité
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Actions rapides -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-bolt"></i> Actions rapides</h3>
+                </div>
+                <div class="card-content">
+                    <div class="quick-actions">
+                        <a href="{% url 'product-create' %}" class="quick-action-item">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Ajouter un produit</span>
+                        </a>
+                        <a href="{% url 'chat-list' %}" class="quick-action-item">
+                            <i class="fas fa-comments"></i>
+                            <span>Messages ({{ unread_messages|default:"0" }})</span>
+                        </a>
+                        <a href="{% url 'product-list' %}" class="quick-action-item">
+                            <i class="fas fa-search"></i>
+                            <span>Explorer le marché</span>
+                        </a>
+                        <a href="{% url 'profile' %}" class="quick-action-item">
+                            <i class="fas fa-user-cog"></i>
+                            <span>Paramètres</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Aperçu des performances -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-pie"></i> Performances</h3>
+                </div>
+                <div class="card-content">
+                    <div class="performance-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Taux de réponse</span>
+                            <span class="metric-value">95%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Temps de réponse moyen</span>
+                            <span class="metric-value">2.5h</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Produits les plus vus</span>
+                            <span class="metric-value">{{ top_product|default:"-" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Conseils & Astuces -->
+            <div class="dashboard-card tip-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-lightbulb"></i> Conseil du jour</h3>
+                </div>
+                <div class="card-content">
+                    <p class="tip-text">
+                        "Ajoutez des photos de qualité et des descriptions détaillées pour augmenter vos chances de vente de 40% !"
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding: 2rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 1rem;
+        color: white;
+    }
+    
+    .header-content h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .header-content p {
+        opacity: 0.9;
+    }
+    
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        background: white;
+        color: var(--primary-color);
+        text-decoration: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: transform 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--background-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--primary-color);
+    }
+    
+    .stat-content {
+        flex: 1;
+    }
+    
+    .stat-value {
+        display: block;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+    
+    .stat-label {
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+    
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    .dashboard-card {
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .card-header h3 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .card-header h3 i {
+        color: var(--primary-color);
+    }
+    
+    .card-content {
+        padding: 1.5rem;
+    }
+    
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .data-table th {
+        text-align: left;
+        padding: 0.75rem;
+        background: var(--background-light);
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+    
+    .data-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .product-info-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .product-thumb {
+        width: 40px;
+        height: 40px;
+        border-radius: 0.25rem;
+        object-fit: cover;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 0.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-dark);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-icon:hover {
+        background: var(--background-light);
+    }
+    
+    .btn-icon.delete:hover {
+        background: #fee2e2;
+        color: #ef4444;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-light);
+    }
+    
+    .empty-state i {
+        margin-bottom: 1rem;
+    }
+    
+    .requests-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .request-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: var(--background-light);
+        border-radius: 0.5rem;
+    }
+    
+    .request-info h4 {
+        margin-bottom: 0.5rem;
+    }
+    
+    .request-info h4 a {
+        color: var(--text-dark);
+        text-decoration: none;
+    }
+    
+    .request-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.875rem;
+        color: var(--text-light);
+    }
+    
+    .request-meta i {
+        margin-right: 0.25rem;
+    }
+    
+    .btn-contact {
+        padding: 0.5rem 1rem;
+        background: var(--primary-color);
+        color: white;
+        text-decoration: none;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+    }
+    
+    .supplier-profile {
+        text-align: center;
+    }
+    
+    .profile-avatar,
+    .profile-avatar-placeholder {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        object-fit: cover;
+    }
+    
+    .profile-avatar-placeholder {
+        background: var(--background-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-light);
+    }
+    
+    .profile-details {
+        margin-bottom: 1.5rem;
+    }
+    
+    .profile-details h4 {
+        margin-bottom: 0.5rem;
+    }
+    
+    .profile-details p {
+        color: var(--text-light);
+        margin: 0.25rem 0;
+        font-size: 0.9rem;
+    }
+    
+    .profile-details i {
+        width: 20px;
+        color: var(--primary-color);
+    }
+    
+    .profile-progress {
+        text-align: left;
+    }
+    
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .progress-bar {
+        height: 8px;
+        background: var(--background-light);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: var(--primary-color);
+        border-radius: 4px;
+    }
+    
+    .progress-hint {
+        font-size: 0.8rem;
+        color: var(--text-light);
+    }
+    
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .quick-action-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        background: var(--background-light);
+        border-radius: 0.5rem;
+        text-decoration: none;
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+    }
+    
+    .quick-action-item:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .quick-action-item i {
+        font-size: 1.25rem;
+    }
+    
+    .performance-metrics {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .metric {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .metric-label {
+        color: var(--text-light);
+    }
+    
+    .metric-value {
+        font-weight: 600;
+    }
+    
+    .tip-card {
+        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        color: white;
+    }
+    
+    .tip-card .card-header h3 {
+        color: white;
+    }
+    
+    .tip-card .card-header h3 i {
+        color: white;
+    }
+    
+    .tip-text {
+        font-size: 1rem;
+        line-height: 1.6;
+        font-style: italic;
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .dashboard-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+        
+        .quick-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+$(document).ready(function() {
+    // Graphique d'activité
+    var ctx = document.getElementById('activityChart').getContext('2d');
+    var activityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+            datasets: [{
+                label: 'Vues',
+                data: [65, 59, 80, 81, 56, 55, 40],
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                tension: 0.4,
+                fill: true
+            }, {
+                label: 'Messages',
+                data: [28, 48, 40, 19, 86, 27, 90],
+                borderColor: '#f59e0b',
+                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // Changer la période du graphique
+    $('#chart-period').change(function() {
+        // Ici vous feriez un appel AJAX pour récupérer les données
+        console.log('Période changée:', $(this).val());
+    });
+});
+</script>
+{% endblock %}

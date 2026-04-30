@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>{% block title %}Ktrade Connect{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="mainNavbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="{% url 'home' %}">
+                    <img src="{% static 'images/logo.png' %}" alt="Ktrade Connect" class="logo">
+                    <span>Ktrade Connect</span>
+                </a>
+            </div>
+            
+            <div class="nav-search" id="navSearch">
+                <form action="{% url 'search' %}" method="GET" class="search-form">
+                    <input type="text" name="q" placeholder="Rechercher un produit ou un fournisseur..." 
+                           aria-label="Rechercher un produit">
+                    <button type="submit" aria-label="Lancer la recherche"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+            
+            <div class="nav-overlay" id="navOverlay"></div>
+            
+            <div class="nav-links" id="navLinks">
+                <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Fermer le menu">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <div class="mobile-search">
+                    <form action="{% url 'search' %}" method="GET" class="search-form">
+                        <input type="text" name="q" placeholder="Rechercher..." aria-label="Rechercher">
+                        <button type="submit" aria-label="Lancer la recherche"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+                
+                <a href="{% url 'product-list' %}" class="nav-link">
+                    <i class="fas fa-box"></i> <span>Produits</span>
+                </a>
+                <a href="{% url 'request-list' %}" class="nav-link">
+                    <i class="fas fa-file-alt"></i> <span>Demandes</span>
+                </a>
+                
+                <!-- Réseaux sociaux dans la nav -->
+                <div class="nav-social">
+                    <a href="#" class="social-link" aria-label="Facebook" target="_blank" rel="noopener">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-link" aria-label="Twitter" target="_blank" rel="noopener">
+                        <i class="fab fa-x-twitter"></i>
+                    </a>
+                    <a href="#" class="social-link" aria-label="LinkedIn" target="_blank" rel="noopener">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="social-link" aria-label="Instagram" target="_blank" rel="noopener">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+                
+                {% if user.is_authenticated %}
+                    <div class="nav-dropdown">
+                        <button class="dropdown-btn" id="dropdownBtn" aria-label="Menu utilisateur">
+                            {% if user.profile.profile_picture %}
+                                <img src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}" class="avatar-small">
+                            {% else %}
+                                <div class="avatar-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}
+                            <span class="username">{{ user.username|truncatechars:10 }}</span>
+                            <i class="fas fa-chevron-down dropdown-arrow"></i>
+                        </button>
+                        <div class="dropdown-content" id="dropdownContent">
+                            <a href="{% url 'profile' %}"><i class="fas fa-user"></i> Mon profil</a>
+                            
+                            {% if user.profile.user_type == 'fournisseur' %}
+                                <a href="{% url 'supplier-dashboard' %}"><i class="fas fa-tachometer-alt"></i> Tableau de bord</a>
+                            {% endif %}
+                            
+                            <a href="{% url 'chat-list' %}"><i class="fas fa-comments"></i> Messages</a>
+                            
+                            {% if user.profile.user_type == 'fournisseur' %}
+                                <a href="{% url 'product-create' %}"><i class="fas fa-plus-circle"></i> Ajouter un produit</a>
+                            {% else %}
+                                <a href="{% url 'request-create' %}"><i class="fas fa-plus-circle"></i> Créer une demande</a>
+                            {% endif %}
+                            
+                            <hr class="dropdown-divider">
+                            <a href="{% url 'custom-logout' %}" class="logout-link"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="nav-auth-buttons">
+                        <a href="{% url 'custom-login' %}" class="btn-login">Connexion</a>
+                        <a href="{% url 'register' %}" class="btn-register">Inscription</a>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="nav-actions">
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Barre de progression du scroll -->
+        <div class="scroll-progress" id="scrollProgress"></div>
+    </nav>
+    
+    <!-- Messages -->
+    <div class="messages-container" id="alerts-container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    <span class="alert-message">{{ message }}</span>
+                    <button class="close-alert" aria-label="Fermer"><i class="fas fa-times"></i></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer - N'apparaît que sur la page d'accueil (home) -->
+    {% if request.resolver_match.url_name == 'home' %}
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>Ktrade Connect</h4>
+                <p>La plateforme qui connecte acheteurs et fournisseurs du monde entier.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Liens rapides</h4>
+                <a href="{% url 'home' %}">Accueil</a>
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'custom-login' %}">Connexion</a>
+                    <a href="{% url 'register' %}">Inscription</a>
+                {% endif %}
+            </div>
+            
+            <div class="footer-section">
+                <h4>Catégories</h4>
+                <a href="{% url 'product-list' %}?category=electronique">Électronique</a>
+                <a href="{% url 'product-list' %}?category=textile">Textile</a>
+                <a href="{% url 'product-list' %}?category=alimentaire">Alimentaire</a>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Suivez-nous</h4>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Ktrade Connect. Tous droits réservés.</p>
+        </div>
+    </footer>
+    {% endif %}
+    
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Variable globale pour vérifier si l'utilisateur est connecté
+        window.userLoggedIn = {% if user.is_authenticated %}true{% else %}false{% endif %};
+        
+        // Configuration des URLs personnalisées pour JavaScript
+        window.urls = {
+            login: "{% url 'custom-login' %}",
+            register: "{% url 'register' %}",
+            home: "{% url 'home' %}",
+            logout: "{% url 'custom-logout' %}"
+        };
+    </script>
+    <script src="{% static 'js/main.js' %}"></script>
+    
+    <!-- Script pour l'effet de disparition au scroll -->
+    <script>
+        (function() {
+            const navbar = document.getElementById('mainNavbar');
+            const scrollProgress = document.getElementById('scrollProgress');
+            let lastScrollTop = 0;
+            let scrollThreshold = 50;
+            let isNavbarHidden = false;
+            
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                // Mise à jour de la barre de progression
+                if (scrollProgress) {
+                    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                    const scrollPercent = (scrollTop / docHeight) * 100;
+                    scrollProgress.style.width = scrollPercent + '%';
+                }
+                
+                // Gestion de l'apparition/disparition de la navbar
+                if (scrollTop > lastScrollTop && scrollTop > scrollThreshold) {
+                    // Scroll vers le bas - cacher la navbar
+                    if (!isNavbarHidden) {
+                        navbar.classList.add('navbar-hidden');
+                        isNavbarHidden = true;
+                    }
+                } else {
+                    // Scroll vers le haut - montrer la navbar
+                    if (isNavbarHidden) {
+                        navbar.classList.remove('navbar-hidden');
+                        isNavbarHidden = false;
+                    }
+                }
+                
+                // Ajouter une ombre et un fond plus opaque quand on a scrollé
+                if (scrollTop > 20) {
+                    navbar.classList.add('navbar-scrolled');
+                } else {
+                    navbar.classList.remove('navbar-scrolled');
+                }
+                
+                lastScrollTop = scrollTop;
+            });
+            
+            // Gestion du dropdown menu
+            const dropdownBtn = document.getElementById('dropdownBtn');
+            const dropdownContent = document.getElementById('dropdownContent');
+            
+            if (dropdownBtn && dropdownContent) {
+                dropdownBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownContent.classList.toggle('show');
+                    dropdownBtn.classList.toggle('active');
+                });
+                
+                // Fermer le dropdown si on clique ailleurs
+                document.addEventListener('click', function(e) {
+                    if (!dropdownBtn.contains(e.target) && !dropdownContent.contains(e.target)) {
+                        dropdownContent.classList.remove('show');
+                        dropdownBtn.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Gestion du menu mobile
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenuClose = document.getElementById('mobileMenuClose');
+            const navLinks = document.getElementById('navLinks');
+            const navOverlay = document.getElementById('navOverlay');
+            
+            function openMobileMenu() {
+                navLinks.classList.add('active');
+                navOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            function closeMobileMenu() {
+                navLinks.classList.remove('active');
+                navOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', openMobileMenu);
+            }
+            
+            if (mobileMenuClose) {
+                mobileMenuClose.addEventListener('click', closeMobileMenu);
+            }
+            
+            if (navOverlay) {
+                navOverlay.addEventListener('click', closeMobileMenu);
+            }
+            
+            // Fermer les alertes
+            document.querySelectorAll('.close-alert').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.alert').remove();
+                });
+            });
+            
+            // Auto-fermeture des alertes après 5 secondes
+            setTimeout(() => {
+                document.querySelectorAll('.alert').forEach(alert => {
+                    alert.style.transition = 'opacity 0.3s ease';
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 300);
+                });
+            }, 5000);
+        })();
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

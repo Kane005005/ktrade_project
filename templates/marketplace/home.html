@@ -1,0 +1,1254 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Accueil - Ktrade Connect{% endblock %}
+
+{% block content %}
+<!-- Bouton de Traduction Flottant -->
+<div class="floating-translate">
+    <div id="google_translate_element"></div>
+</div>
+
+<!-- Hero Section -->
+<section class="hero">
+    <!-- Carte d'Afrique en arrière-plan (SVG) -->
+    <div class="africa-bg">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" opacity="0.15">
+            <path fill="currentColor" d="M375.4,142.1c-14.8,5.1-23.7,14-36.2,21.6c-27.4,16.5-56,31.7-85,45.3c-15.6,7.3-30.7,16-43.5,27.5
+                c-10.4,9.3-17.7,21.9-20.9,35.6c-3.1,13.4-1.2,26.5,5.2,38.6c13.1,24.7,33.3,43,53.8,61.1c11.3,10,23.1,19.3,34.4,29.3
+                c11.5,10.2,20.8,22.4,26.4,36.8c8.2,21.3,7.5,43.3,2,64.8c-6,23.3-17.7,43.9-28.7,64.9c-8.9,16.9-19.1,33.1-26.6,50.7
+                c-7.9,18.4-10,38.2-12,58.1c-1.3,12.8,0.3,25.9,3.6,38.3c8.5,31.9,23.7,60.8,45.8,85c18,19.7,39.6,35.1,62.8,48.2
+                c24.6,13.9,50.8,24,78.5,28.6c24.3,4,49.2,3.3,73.5-2.2c27.1-6.1,52.2-17.6,75.1-33.3c21-14.4,39.7-32,56.1-51.5
+                c19.3-23,34.8-48.4,45.6-76.4c7.6-19.7,13.3-39.8,14.7-60.9c0.9-14.3-1-28.8-5.3-42.5c-7.7-24.5-21-45.9-35.8-66.2
+                c-14-19.2-28.5-38-42.8-56.9c-11.4-15-22.9-29.8-33.8-45.2c-15.6-22.1-28.2-46.1-34.7-72.7c-5-20.5-5.9-41.5-2.1-62.4
+                c3.3-17.8,9.7-34.8,18.5-50.5c10.4-18.4,23.7-34.6,38.8-49.1c11.6-11.2,23.9-21.7,35-33.4c16.3-17.3,28-37.4,36.1-59.5
+                c5.3-14.3,8.4-29.4,7.8-44.6c-0.6-13.6-4.5-26.5-11.5-38.1c-11.9-19.6-28.5-35.1-47.5-47.8c-23-15.5-48.6-26.6-75.5-33.1
+                c-25.2-6.1-50.9-8.4-76.5-5.8c-24.8,2.5-49.2,9.3-72.3,19.8C423.8,122.9,398.7,131.5,375.4,142.1z"/>
+        </svg>
+    </div>
+
+    <div class="hero-content">
+        <!-- Titre avec effet d'écriture -->
+        <h1 class="typed-container">
+            <span id="typed-title"></span><span class="cursor">|</span>
+        </h1>
+        
+        <!-- Slogan repensé -->
+        <div class="hero-message">
+            <p class="highlight-slogan">
+                L'approvisionnement B2B mondial, enfin sécurisé et pensé pour l'Afrique.
+            </p>
+            <p class="sub-slogan">
+                Nous ne concurrençons pas Alibaba, nous le simplifions. Nos experts valident et filtrent les meilleurs fournisseurs de toutes les plateformes existantes pour vous garantir des achats fluides, sans risque et sans intermédiaire superflu.
+            </p>
+        </div>
+        
+        <!-- Liens rapides -->
+        <div class="hero-quick-links">
+            <a href="{% url 'product-list' %}" class="quick-link-card glass-effect">
+                <div class="quick-link-icon">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="quick-link-text">
+                    <h3>Produits Audités</h3>
+                    <p>Découvrez notre sélection validée</p>
+                </div>
+                <i class="fas fa-arrow-right quick-link-arrow"></i>
+            </a>
+            
+            <a href="{% url 'request-list' %}" class="quick-link-card glass-effect">
+                <div class="quick-link-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="quick-link-text">
+                    <h3>Voir les demandes</h3>
+                    <p>Trouvez des opportunités d'affaires</p>
+                </div>
+                <i class="fas fa-arrow-right quick-link-arrow"></i>
+            </a>
+            
+            <a href="{% url 'category-list' %}" class="quick-link-card glass-effect">
+                <div class="quick-link-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="quick-link-text">
+                    <h3>Achat Sécurisé</h3>
+                    <p>Parcourez nos garanties</p>
+                </div>
+                <i class="fas fa-arrow-right quick-link-arrow"></i>
+            </a>
+        </div>
+        
+        <div class="hero-stats">
+            <div class="stat">
+                <span class="stat-number">+1000</span>
+                <span class="stat-label">Usines Validées</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">+5000</span>
+                <span class="stat-label">Produits Garantis</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">54</span>
+                <span class="stat-label">Pays Africains Desservis</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION CONDITIONNELLE SELON LE TYPE D'UTILISATEUR -->
+{% if user.is_authenticated %}
+    {% if user.profile.user_type == 'fournisseur' %}
+        <!-- Section pour les FOURNISSEURS : Voir les demandes -->
+        <section class="dashboard-prompt-section">
+            <div class="prompt-card supplier-prompt">
+                <div class="prompt-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="prompt-content">
+                    <h2>Nouvelles opportunités commerciales</h2>
+                    <p>Des acheteurs recherchent vos produits. Consultez les dernières demandes d'achat.</p>
+                    <div class="prompt-actions">
+                        <a href="{% url 'request-list' %}" class="btn-primary">
+                            <i class="fas fa-eye"></i> Voir toutes les demandes
+                        </a>
+                        <a href="{% url 'supplier-dashboard' %}" class="btn-secondary">
+                            <i class="fas fa-tachometer-alt"></i> Mon tableau de bord
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Demandes récentes pour les fournisseurs -->
+        <section class="requests-section">
+            <div class="section-header">
+                <h2>Dernières demandes d'achat</h2>
+                <a href="{% url 'request-list' %}" class="view-all">
+                    Voir toutes les demandes <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="requests-grid">
+                {% for request in latest_requests %}
+                    <div class="request-card">
+                        {% if request.is_new %}
+                            <div class="request-badge">Nouveau</div>
+                        {% endif %}
+                        <div class="request-header">
+                            <h3><a href="{% url 'request-detail' request.id %}">{{ request.product_name|truncatechars:40 }}</a></h3>
+                            <span class="request-category">{{ request.category.name }}</span>
+                        </div>
+                        
+                        <div class="request-info">
+                            <p><i class="fas fa-box"></i> Quantité: {{ request.desired_quantity }}</p>
+                            <p><i class="fas fa-map-marker-alt"></i> {{ request.desired_country }}</p>
+                            {% if request.max_budget %}
+                                <p><i class="fas fa-money-bill"></i> Budget: {{ request.max_budget }} {{ request.budget_currency }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="request-footer">
+                            <span class="request-buyer">
+                                <i class="fas fa-user"></i> {{ request.buyer.profile.company_name|default:request.buyer.username }}
+                            </span>
+                            <a href="{% url 'request-detail' request.id %}" class="btn-detail">
+                                Voir détail <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="no-results">Aucune demande pour le moment.</p>
+                {% endfor %}
+            </div>
+        </section>
+        
+    {% else %}
+        <!-- Section pour les ACHETEURS : Voir les produits -->
+        <section class="dashboard-prompt-section">
+            <div class="prompt-card buyer-prompt">
+                <div class="prompt-icon">
+                    <i class="fas fa-shield-check"></i>
+                </div>
+                <div class="prompt-content">
+                    <h2>Trouvez les produits qu'il vous faut en toute sécurité</h2>
+                    <p>Parcourez notre catalogue de fournisseurs préalablement audités par nos experts.</p>
+                    <div class="prompt-actions">
+                        <a href="{% url 'product-list' %}" class="btn-primary">
+                            <i class="fas fa-search"></i> Explorer les produits
+                        </a>
+                        <a href="{% url 'request-create' %}" class="btn-secondary">
+                            <i class="fas fa-plus-circle"></i> Créer une demande
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Produits récents pour les acheteurs -->
+        <section class="products-section">
+            <div class="section-header">
+                <h2>Derniers produits validés disponibles</h2>
+                <a href="{% url 'product-list' %}" class="view-all">
+                    Voir tous les produits <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="products-grid">
+                {% for product in latest_products %}
+                    <div class="product-card">
+                        <div class="product-image">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                            {% else %}
+                                <img src="{% static 'images/no-image.jpg' %}" alt="{{ product.name }}" loading="lazy">
+                            {% endif %}
+                            
+                            {% if user.is_authenticated %}
+                                <button class="favorite-btn" data-product-id="{{ product.id }}" 
+                                        aria-label="Ajouter aux favoris">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            {% endif %}
+                            
+                            {% if product.is_new %}
+                                <span class="product-badge">Nouveau</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="product-info">
+                            <span class="product-category">{{ product.category.name }}</span>
+                            <h3><a href="{% url 'product-detail' product.id %}">{{ product.name|truncatechars:40 }}</a></h3>
+                            <p class="product-price">
+                                {{ product.estimated_price|floatformat:0 }} {{ product.price_currency }}
+                            </p>
+                            <p class="product-supplier">
+                                <i class="fas fa-store"></i> {{ product.supplier.profile.company_name|default:product.supplier.username }}
+                            </p>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="no-results">Aucun produit pour le moment.</p>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+    
+{% else %}
+    <!-- Section pour les UTILISATEURS NON CONNECTÉS : Afficher les deux -->
+    <section class="welcome-section">
+        <div class="welcome-card">
+            <div class="welcome-icon">
+                <i class="fas fa-store"></i>
+            </div>
+            <h2>Vous êtes un fabricant/fournisseur ?</h2>
+            <p>Passez notre audit et proposez vos produits directement au marché africain en pleine croissance.</p>
+            <a href="{% url 'register' %}" class="btn-outline">Devenir fournisseur partenaire</a>
+        </div>
+        
+        <div class="welcome-card">
+            <div class="welcome-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h2>Vous êtes un acheteur en Afrique ?</h2>
+            <p>Fini les arnaques. Trouvez les meilleurs produits aux meilleurs prix auprès de nos fournisseurs certifiés.</p>
+            <a href="{% url 'register' %}" class="btn-outline">S'inscrire comme acheteur</a>
+        </div>
+    </section>
+    
+    <!-- Aperçu des produits pour les visiteurs -->
+    <section class="products-section">
+        <div class="section-header">
+            <h2>Derniers produits validés</h2>
+            <a href="{% url 'product-list' %}" class="view-all">Voir tous <i class="fas fa-arrow-right"></i></a>
+        </div>
+        
+        <div class="products-grid">
+            {% for product in latest_products|slice:":4" %}
+                <div class="product-card">
+                    <div class="product-image">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                        {% else %}
+                            <img src="{% static 'images/no-image.jpg' %}" alt="{{ product.name }}" loading="lazy">
+                        {% endif %}
+                    </div>
+                    <div class="product-info">
+                        <h3><a href="{% url 'product-detail' product.id %}">{{ product.name|truncatechars:40 }}</a></h3>
+                        <p class="product-price">{{ product.estimated_price|floatformat:0 }} {{ product.price_currency }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="no-results">Aucun produit pour le moment.</p>
+            {% endfor %}
+        </div>
+    </section>
+    
+    <!-- Aperçu des demandes pour les visiteurs -->
+    <section class="requests-section">
+        <div class="section-header">
+            <h2>Demandes récentes d'acheteurs</h2>
+            <a href="{% url 'request-list' %}" class="view-all">Voir toutes <i class="fas fa-arrow-right"></i></a>
+        </div>
+        
+        <div class="requests-grid">
+            {% for request in latest_requests|slice:":4" %}
+                <div class="request-card">
+                    <h3><a href="{% url 'request-detail' request.id %}">{{ request.product_name|truncatechars:40 }}</a></h3>
+                    <p><i class="fas fa-box"></i> Quantité: {{ request.desired_quantity }}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> {{ request.desired_country }}</p>
+                </div>
+            {% empty %}
+                <p class="no-results">Aucune demande pour le moment.</p>
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
+
+<!-- Catégories Populaires (visible par tous) -->
+<section class="categories-section">
+    <div class="section-header">
+        <h2>Catégories populaires</h2>
+        <a href="{% url 'category-list' %}" class="view-all">Voir toutes <i class="fas fa-arrow-right"></i></a>
+    </div>
+    
+    <div class="categories-grid">
+        {% for category in categories|slice:":6" %}
+            <a href="{% url 'product-list' %}?category={{ category.slug }}" class="category-card">
+                <div class="category-icon">
+                    <i class="fas {{ category.icon|default:'fa-tag' }}"></i>
+                </div>
+                <h3>{{ category.name }}</h3>
+                <span class="category-count">{{ category.product_count }} produits</span>
+            </a>
+        {% empty %}
+            <p class="no-results">Aucune catégorie disponible.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Call to Action (pour les non-connectés) -->
+{% if not user.is_authenticated %}
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2>Prêt à développer votre business en toute sécurité ?</h2>
+            <p>Rejoignez le réseau de confiance dédié au continent africain.</p>
+            
+            <div class="cta-buttons">
+                <a href="{% url 'register' %}" class="btn-primary">Créer un compte</a>
+                <a href="{% url 'custom-login' %}" class="btn-secondary">Se connecter</a>
+            </div>
+        </div>
+    </section>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Bouton Flottant Traduction */
+    .floating-translate {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        z-index: 9999;
+        background: white;
+        padding: 8px;
+        border-radius: 50px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        transition: transform 0.3s ease;
+        display: flex;
+        align-items: center;
+        border: 2px solid var(--primary-color, #2563eb);
+    }
+    .floating-translate:hover {
+        transform: translateY(-5px);
+    }
+    .floating-translate .goog-te-gadget {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 12px !important;
+        color: transparent !important; /* Cache le texte "Powered by Google" */
+    }
+    .floating-translate .goog-te-gadget .goog-te-combo {
+        margin: 0;
+        padding: 5px 10px;
+        border-radius: 20px;
+        border: none;
+        background: #f1f5f9;
+        color: #1e293b;
+        font-weight: 600;
+        cursor: pointer;
+        outline: none;
+    }
+    .floating-translate > div {
+        display: flex;
+        align-items: center;
+    }
+
+    /* Hero Section */
+    .hero {
+        background: linear-gradient(135deg, #0f172a, var(--primary-darker, #1e40af), var(--secondary-dark, #0f766e));
+        color: white;
+        padding: 5rem 2rem;
+        border-radius: 2rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .africa-bg {
+        position: absolute;
+        right: -10%;
+        top: -20%;
+        width: 800px;
+        height: 800px;
+        z-index: 0;
+        pointer-events: none;
+        color: #ffffff;
+        transform: rotate(-5deg);
+    }
+
+    @media (max-width: 768px) {
+        .africa-bg {
+            right: -30%;
+            opacity: 0.1;
+            width: 500px;
+            height: 500px;
+        }
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    /* Typewriter effect styles */
+    .typed-container {
+        font-size: clamp(2rem, 5vw, 3.5rem);
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+        font-weight: 700;
+        min-height: 2.4em; /* Garde l'espace pendant l'écriture */
+        text-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    
+    .cursor {
+        display: inline-block;
+        width: 3px;
+        background-color: white;
+        margin-left: 2px;
+        animation: blink 1s infinite;
+        color: transparent;
+    }
+    
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+    
+    .hero-message {
+        background: rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 1.5rem 2rem;
+        border-radius: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 2.5rem;
+    }
+
+    .highlight-slogan {
+        font-size: clamp(1.1rem, 3vw, 1.4rem);
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #fbbf24; /* Couleur or pour marquer la qualité */
+    }
+
+    .sub-slogan {
+        font-size: clamp(0.95rem, 2vw, 1.1rem);
+        line-height: 1.6;
+        opacity: 0.9;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    /* Quick Links Cards */
+    .hero-quick-links {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+    
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .quick-link-card {
+        border-radius: 1.5rem;
+        padding: 1.5rem;
+        text-decoration: none;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .quick-link-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .quick-link-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+    
+    .quick-link-card:hover::before {
+        opacity: 1;
+    }
+    
+    .quick-link-card:hover .quick-link-arrow {
+        transform: translateX(5px);
+        color: #fbbf24;
+    }
+    
+    .quick-link-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+        box-shadow: inset 0 2px 4px rgba(255,255,255,0.2);
+    }
+    
+    .quick-link-card:hover .quick-link-icon {
+        background: #fbbf24;
+        color: #0f172a;
+        transform: scale(1.1) rotate(5deg);
+    }
+    
+    .quick-link-text {
+        flex: 1;
+        text-align: left;
+    }
+    
+    .quick-link-text h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+        font-weight: 700;
+    }
+    
+    .quick-link-text p {
+        font-size: 0.85rem;
+        margin: 0;
+        opacity: 0.8;
+    }
+    
+    .quick-link-arrow {
+        transition: transform 0.3s ease;
+        opacity: 0.9;
+        font-size: 1.2rem;
+    }
+    
+    .hero-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        justify-content: center;
+        margin-top: 4rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 2rem;
+    }
+    
+    @media (min-width: 640px) {
+        .hero-stats {
+            flex-direction: row;
+            gap: 4rem;
+        }
+    }
+    
+    .stat {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .stat-number {
+        font-size: clamp(1.8rem, 4vw, 2.5rem);
+        font-weight: 800;
+        color: #fbbf24;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .stat-label {
+        font-size: clamp(0.9rem, 2vw, 1.1rem);
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+        margin-top: 5px;
+    }
+    
+    /* Section Headers */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .section-header h2 {
+        font-size: clamp(1.3rem, 4vw, 1.8rem);
+        color: var(--text-dark, #1f2937);
+        font-weight: 700;
+    }
+    
+    .view-all {
+        color: var(--primary-color, #2563eb);
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: gap 0.3s ease;
+    }
+    
+    .view-all:hover {
+        gap: 0.75rem;
+    }
+    
+    /* Categories Grid */
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        margin-bottom: 3rem;
+    }
+    
+    @media (min-width: 768px) {
+        .categories-grid {
+            gap: 1.5rem;
+        }
+    }
+    
+    .category-card {
+        background: white;
+        padding: 1.5rem 1rem;
+        border-radius: 1rem;
+        text-align: center;
+        text-decoration: none;
+        color: var(--text-dark, #1f2937);
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow, 0 1px 3px rgba(0,0,0,0.1));
+        border: 2px solid transparent;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary-color, #2563eb);
+        box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0,0,0,0.1));
+    }
+    
+    .category-icon {
+        font-size: 2rem;
+        background: linear-gradient(135deg, var(--primary-color, #2563eb), var(--secondary-color, #0d9488));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+    
+    .category-card h3 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .category-count {
+        font-size: 0.8rem;
+        color: var(--text-light, #6b7280);
+    }
+    
+    /* Products Grid */
+    .products-grid,
+    .requests-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    
+    .product-card {
+        background: white;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: var(--shadow, 0 1px 3px rgba(0,0,0,0.1));
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0,0,0,0.1));
+    }
+    
+    .product-image {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+    }
+    
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .product-card:hover .product-image img {
+        transform: scale(1.05);
+    }
+    
+    .product-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: #10b981;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .favorite-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: white;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow, 0 1px 3px rgba(0,0,0,0.1));
+        transition: all 0.3s ease;
+        z-index: 10;
+    }
+    
+    .favorite-btn:hover {
+        transform: scale(1.1);
+        color: #ef4444;
+    }
+    
+    .favorite-btn.active {
+        color: #ef4444;
+    }
+    
+    .product-info {
+        padding: 1.5rem;
+    }
+    
+    .product-info h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .product-info h3 a {
+        color: var(--text-dark, #1f2937);
+        text-decoration: none;
+    }
+    
+    .product-info h3 a:hover {
+        color: var(--primary-color, #2563eb);
+    }
+    
+    .product-price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary-color, #2563eb);
+        margin: 0.5rem 0;
+    }
+    
+    .product-supplier,
+    .product-location {
+        font-size: 0.9rem;
+        color: var(--text-light, #6b7280);
+        margin: 0.25rem 0;
+    }
+    
+    .product-category {
+        display: inline-block;
+        background: var(--background-light);
+        color: var(--primary-color);
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.8rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Request Cards */
+    .request-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow, 0 1px 3px rgba(0,0,0,0.1));
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .request-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0,0,0,0.1));
+    }
+    
+    .request-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: #ef4444;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .request-header {
+        margin-bottom: 1rem;
+        padding-right: 4rem;
+    }
+    
+    .request-header h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .request-header h3 a {
+        color: var(--text-dark, #1f2937);
+        text-decoration: none;
+    }
+    
+    .request-header h3 a:hover {
+        color: var(--primary-color, #2563eb);
+    }
+    
+    .request-category {
+        background: var(--background-light);
+        color: var(--primary-color);
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.8rem;
+    }
+    
+    .request-info {
+        margin: 1rem 0;
+    }
+    
+    .request-info p {
+        margin: 0.5rem 0;
+        color: var(--text-light, #6b7280);
+    }
+    
+    .request-info i {
+        width: 20px;
+        color: var(--primary-color, #2563eb);
+        margin-right: 0.5rem;
+    }
+    
+    .request-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .request-buyer {
+        font-size: 0.9rem;
+        color: var(--text-light, #6b7280);
+    }
+    
+    .btn-detail {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary-color, #2563eb);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .btn-detail:hover {
+        gap: 0.75rem;
+    }
+    
+    /* Dashboard Prompt */
+    .dashboard-prompt-section {
+        margin-bottom: 3rem;
+    }
+    
+    .prompt-card {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        padding: 2rem;
+        border-radius: 1rem;
+        background: linear-gradient(135deg, #ffffff, #f8fafc);
+        box-shadow: var(--shadow);
+        border: 1px solid #e5e7eb;
+    }
+    
+    .supplier-prompt {
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    .buyer-prompt {
+        border-left: 4px solid #10b981;
+    }
+    
+    .prompt-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .buyer-prompt .prompt-icon {
+        background: #10b981;
+    }
+    
+    .prompt-icon i {
+        font-size: 2rem;
+        color: white;
+    }
+    
+    .prompt-content {
+        flex: 1;
+    }
+    
+    .prompt-content h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+    }
+    
+    .prompt-content p {
+        color: var(--text-light);
+        margin-bottom: 1rem;
+    }
+    
+    .prompt-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: var(--primary-color, #2563eb);
+        color: white;
+        text-decoration: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: white;
+        color: var(--text-dark);
+        text-decoration: none;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background: var(--background-light);
+        transform: translateY(-2px);
+    }
+    
+    /* Welcome Section */
+    .welcome-section {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+    
+    .welcome-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+    }
+    
+    .welcome-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .welcome-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--background-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+    
+    .welcome-icon i {
+        font-size: 2rem;
+        color: var(--primary-color);
+    }
+    
+    .welcome-card h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .welcome-card p {
+        color: var(--text-light);
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn-outline {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        text-decoration: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    /* CTA Section */
+    .cta-section {
+        background: linear-gradient(135deg, var(--primary-color, #2563eb), var(--secondary-color, #0d9488));
+        color: white;
+        padding: 3rem 1.5rem;
+        border-radius: 2rem;
+        text-align: center;
+        margin-top: 3rem;
+    }
+    
+    .cta-content {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .cta-content h2 {
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        margin-bottom: 1rem;
+    }
+    
+    .cta-content p {
+        font-size: clamp(1rem, 3vw, 1.2rem);
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+    
+    .cta-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    @media (min-width: 640px) {
+        .cta-buttons {
+            flex-direction: row;
+        }
+    }
+    
+    .btn-primary.cta {
+        background: white;
+        color: var(--primary-color, #2563eb);
+        border: none;
+    }
+    
+    .btn-secondary.cta {
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+    }
+    
+    .btn-secondary.cta:hover {
+        background: white;
+        color: var(--primary-color, #2563eb);
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-light, #6b7280);
+        grid-column: 1 / -1;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-quick-links {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .quick-link-card {
+            padding: 1rem;
+        }
+        
+        .prompt-card {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .prompt-actions {
+            flex-direction: column;
+        }
+        
+        .welcome-section {
+            grid-template-columns: 1fr;
+        }
+        
+        .products-grid,
+        .requests-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Google Translate Script (sans impacter le layout global) -->
+<script type="text/javascript">
+function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+        pageLanguage: 'fr', 
+        includedLanguages: 'fr,en,es,ar,pt', // Langues pertinentes pour l'Afrique et l'international
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+    }, 'google_translate_element');
+}
+</script>
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. ANIMATION MACHINE À ÉCRIRE (Typewriter)
+    const textToType = "Connectez-vous à l'élite des fournisseurs mondiaux.";
+    const titleElement = document.getElementById('typed-title');
+    let charIndex = 0;
+    
+    function typeWriter() {
+        if (titleElement && charIndex < textToType.length) {
+            titleElement.innerHTML += textToType.charAt(charIndex);
+            charIndex++;
+            setTimeout(typeWriter, 50); // Vitesse de frappe
+        } else {
+            // Optionnel: Faire disparaître le curseur après la frappe
+            setTimeout(() => {
+                const cursor = document.querySelector('.cursor');
+                if (cursor) cursor.style.display = 'none';
+            }, 3000);
+        }
+    }
+    
+    // Lancer l'animation un court instant après le chargement
+    setTimeout(typeWriter, 300);
+
+    // 2. GESTION DES FAVORIS (Vanilla JS / Fetch pour remplacer jQuery)
+    document.querySelectorAll('.favorite-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const productId = btn.getAttribute('data-product-id');
+            
+            if (!btn.classList.contains('processing')) {
+                btn.classList.add('processing');
+                
+                fetch('/marketplace/favorite/' + productId + '/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error("Erreur réseau");
+                    }
+                    // Vous pouvez appeler return response.json(); si votre vue renvoie un JsonResponse
+                    return response.text(); 
+                })
+                .then(function(data) {
+                    const icon = btn.querySelector('i');
+                    if (icon.classList.contains('far')) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                        btn.classList.add('active');
+                    } else {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                        btn.classList.remove('active');
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Erreur lors de l\'ajout aux favoris:', error);
+                })
+                .finally(function() {
+                    btn.classList.remove('processing');
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

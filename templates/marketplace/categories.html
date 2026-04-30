@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Catégories - Ktrade Connect{% endblock %}
+
+{% block content %}
+<div class="categories-page">
+    <!-- En-tête -->
+    <div class="page-header">
+        <h1>Catégories</h1>
+        <p>Parcourez nos catégories pour trouver les produits et demandes qui vous intéressent</p>
+    </div>
+    
+    <!-- Grille des catégories -->
+    <div class="categories-grid">
+        {% for category in categories %}
+            <div class="category-card">
+                <div class="category-icon">
+                    <i class="fas {{ category.icon|default:'fa-tag' }}"></i>
+                </div>
+                <h3>{{ category.name }}</h3>
+                <p class="category-count">{{ category.products.count }} produits • {{ category.requests.count }} demandes</p>
+                
+                <div class="category-actions">
+                    <a href="{% url 'product-list' %}?category={{ category.slug }}" class="btn-products">
+                        <i class="fas fa-box"></i> Voir produits
+                    </a>
+                    <a href="{% url 'request-list' %}?category={{ category.id }}" class="btn-requests">
+                        <i class="fas fa-file-alt"></i> Voir demandes
+                    </a>
+                </div>
+            </div>
+        {% empty %}
+            <div class="no-categories">
+                <i class="fas fa-tags fa-3x"></i>
+                <h3>Aucune catégorie disponible</h3>
+                <p>Les catégories seront bientôt ajoutées.</p>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Section des catégories populaires -->
+    <div class="popular-categories-section">
+        <h2>Catégories populaires</h2>
+        
+        <div class="popular-grid">
+            {% for category in categories|slice:":6" %}
+                <a href="{% url 'product-list' %}?category={{ category.slug }}" class="popular-item">
+                    <div class="popular-icon">
+                        <i class="fas {{ category.icon|default:'fa-tag' }}"></i>
+                    </div>
+                    <div class="popular-info">
+                        <h4>{{ category.name }}</h4>
+                        <span>{{ category.products.count }} produits</span>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .categories-page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .page-header h1 {
+        font-size: 2.5rem;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+    
+    .page-header p {
+        color: var(--text-light);
+        font-size: 1.1rem;
+    }
+    
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+    
+    .category-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: var(--shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+    
+    .category-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+    
+    .category-icon i {
+        font-size: 2rem;
+        color: white;
+    }
+    
+    .category-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+    }
+    
+    .category-count {
+        color: var(--text-light);
+        margin-bottom: 1.5rem;
+    }
+    
+    .category-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+    
+    .btn-products, .btn-requests {
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-products {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .btn-products:hover {
+        background: var(--secondary-color);
+    }
+    
+    .btn-requests {
+        background: var(--background-light);
+        color: var(--text-dark);
+    }
+    
+    .btn-requests:hover {
+        background: #e5e7eb;
+    }
+    
+    .no-categories {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 4rem;
+        background: white;
+        border-radius: 1rem;
+        color: var(--text-light);
+    }
+    
+    .no-categories i {
+        color: var(--text-light);
+        margin-bottom: 1rem;
+    }
+    
+    .popular-categories-section {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: var(--shadow);
+    }
+    
+    .popular-categories-section h2 {
+        margin-bottom: 2rem;
+        color: var(--text-dark);
+        text-align: center;
+    }
+    
+    .popular-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .popular-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--background-light);
+        border-radius: 0.5rem;
+        text-decoration: none;
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+    }
+    
+    .popular-item:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .popular-icon {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .popular-icon i {
+        color: var(--primary-color);
+        font-size: 1.25rem;
+    }
+    
+    .popular-item:hover .popular-icon i {
+        color: var(--primary-color);
+    }
+    
+    .popular-info h4 {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .popular-info span {
+        font-size: 0.875rem;
+        opacity: 0.8;
+    }
+    
+    @media (max-width: 768px) {
+        .categories-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .category-actions {
+            flex-direction: column;
+        }
+        
+        .btn-products, .btn-requests {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .popular-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

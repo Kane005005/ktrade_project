@@ -1,0 +1,1171 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Créer une demande d'achat - Ktrade Connect{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h1>Créer une demande d'achat</h1>
+        <p>Publiez votre besoin et recevez des offres de fournisseurs du monde entier</p>
+    </div>
+    
+    <!-- Barre de progression -->
+    <div class="progress-steps">
+        <div class="step active">
+            <div class="step-number">1</div>
+            <div class="step-label">Informations de base</div>
+        </div>
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-label">Détails</div>
+        </div>
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-label">Budget & localisation</div>
+        </div>
+    </div>
+    
+    <form method="POST" class="request-form" id="requestForm">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="form-errors">
+                {% for error in form.non_field_errors %}
+                    <p class="error">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <!-- Étape 1: Informations de base -->
+        <div class="form-step active" id="step1">
+            <div class="form-section">
+                <h3><i class="fas fa-info-circle"></i> Informations de base</h3>
+                
+                <div class="form-group">
+                    <label for="{{ form.product_name.id_for_label }}">
+                        Nom du produit recherché *
+                    </label>
+                    {{ form.product_name }}
+                    <div class="char-counter">
+                        <span id="productNameCount">0</span> caractères
+                    </div>
+                    <p class="help-text">Soyez précis pour attirer les bons fournisseurs</p>
+                    {% if form.product_name.errors %}
+                        <p class="error">{{ form.product_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.category.id_for_label }}">
+                        Catégorie *
+                    </label>
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                        <p class="error">{{ form.category.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}">
+                        Description détaillée *
+                    </label>
+                    {{ form.description }}
+                    <div class="char-counter">
+                        <span id="descriptionCount">0</span> caractères (minimum 50)
+                    </div>
+                    <p class="help-text">Décrivez précisément vos besoins (spécifications, qualité, conditionnement...)</p>
+                    {% if form.description.errors %}
+                        <p class="error">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-navigation">
+                <button type="button" class="btn-next" onclick="nextStep(2)">Suivant</button>
+            </div>
+        </div>
+        
+        <!-- Étape 2: Détails de la demande -->
+        <div class="form-step" id="step2">
+            <div class="form-section">
+                <h3><i class="fas fa-box"></i> Détails de la demande</h3>
+                
+                <div class="form-group">
+                    <label for="{{ form.desired_quantity.id_for_label }}">
+                        Quantité désirée *
+                    </label>
+                    {{ form.desired_quantity }}
+                    <div class="help-group">
+                        <p class="help-text">Indiquez la quantité que vous souhaitez acheter</p>
+                        <span class="validation-message" id="quantityValidation"></span>
+                    </div>
+                    {% if form.desired_quantity.errors %}
+                        <p class="error">{{ form.desired_quantity.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.unit_of_measure.id_for_label }}">
+                        Unité de mesure *
+                    </label>
+                    {{ form.unit_of_measure }}
+                    <p class="help-text">Ex: kg, tonne, litre, pièce, conteneur, etc.</p>
+                    {% if form.unit_of_measure.errors %}
+                        <p class="error">{{ form.unit_of_measure.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.desired_country.id_for_label }}">
+                        Pays d'origine souhaité *
+                    </label>
+                    {{ form.desired_country }}
+                    <p class="help-text">De quel pays souhaitez-vous importer ?</p>
+                    {% if form.desired_country.errors %}
+                        <p class="error">{{ form.desired_country.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.preferred_delivery_date.id_for_label }}">
+                        Date de livraison souhaitée
+                    </label>
+                    {{ form.preferred_delivery_date }}
+                    <p class="help-text">Optionnel - Date à laquelle vous souhaitez recevoir les produits</p>
+                    {% if form.preferred_delivery_date.errors %}
+                        <p class="error">{{ form.preferred_delivery_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-navigation">
+                <button type="button" class="btn-prev" onclick="prevStep(1)">Précédent</button>
+                <button type="button" class="btn-next" onclick="nextStep(3)">Suivant</button>
+            </div>
+        </div>
+        
+        <!-- Étape 3: Budget & localisation -->
+        <div class="form-step" id="step3">
+            <div class="form-section">
+                <h3><i class="fas fa-chart-line"></i> Budget & localisation</h3>
+                
+                <div class="form-group">
+                    <label for="{{ form.max_budget.id_for_label }}">
+                        Budget maximum
+                    </label>
+                    <div class="budget-input">
+                        {{ form.max_budget }}
+                        {{ form.budget_currency }}
+                    </div>
+                    <p class="help-text">Optionnel - Laissez vide pour recevoir des propositions</p>
+                    {% if form.max_budget.errors %}
+                        <p class="error">{{ form.max_budget.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.min_budget.id_for_label }}">
+                        Budget minimum
+                    </label>
+                    {{ form.min_budget }}
+                    <p class="help-text">Optionnel - Budget minimum indicatif</p>
+                    {% if form.min_budget.errors %}
+                        <p class="error">{{ form.min_budget.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.delivery_location.id_for_label }}">
+                        Lieu de livraison
+                    </label>
+                    {{ form.delivery_location }}
+                    <p class="help-text">Ville et pays où vous souhaitez recevoir les produits</p>
+                    {% if form.delivery_location.errors %}
+                        <p class="error">{{ form.delivery_location.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.incoterm.id_for_label }}">
+                        Incoterm préféré
+                    </label>
+                    {{ form.incoterm }}
+                    <p class="help-text">Conditions de livraison souhaitées</p>
+                    {% if form.incoterm.errors %}
+                        <p class="error">{{ form.incoterm.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.specific_requirements.id_for_label }}">
+                        Exigences particulières
+                    </label>
+                    {{ form.specific_requirements }}
+                    <div class="char-counter">
+                        <span id="requirementsCount">0</span> caractères
+                    </div>
+                    <p class="help-text">Certifications, normes, conditionnement spécifique, etc.</p>
+                    {% if form.specific_requirements.errors %}
+                        <p class="error">{{ form.specific_requirements.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3><i class="fas fa-check-circle"></i> Récapitulatif</h3>
+                
+                <div class="summary-card">
+                    <h4>Informations de base</h4>
+                    <div class="summary-item">
+                        <span class="summary-label">Produit:</span>
+                        <span class="summary-value" id="summary-product"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Catégorie:</span>
+                        <span class="summary-value" id="summary-category"></span>
+                    </div>
+                    
+                    <h4>Détails</h4>
+                    <div class="summary-item">
+                        <span class="summary-label">Quantité:</span>
+                        <span class="summary-value" id="summary-quantity"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Unité:</span>
+                        <span class="summary-value" id="summary-unit"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Pays:</span>
+                        <span class="summary-value" id="summary-country"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Budget max:</span>
+                        <span class="summary-value" id="summary-budget"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Livraison:</span>
+                        <span class="summary-value" id="summary-delivery"></span>
+                    </div>
+                </div>
+                
+                <div class="terms-checkbox">
+                    <label>
+                        <input type="checkbox" id="terms" required>
+                        <span>Je certifie que les informations fournies sont exactes et j'accepte les <a href="#" target="_blank">conditions d'utilisation</a></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-navigation">
+                <button type="button" class="btn-prev" onclick="prevStep(2)">Précédent</button>
+                <button type="submit" class="btn-submit" id="submitBtn" disabled>
+                    <i class="fas fa-check"></i> Publier ma demande
+                </button>
+            </div>
+        </div>
+    </form>
+    
+    <!-- Conseils -->
+    <div class="tips-section">
+        <h4><i class="fas fa-lightbulb"></i> Conseils pour une demande efficace</h4>
+        <ul>
+            <li>Soyez précis dans la description de votre besoin</li>
+            <li>Indiquez les quantités exactes recherchées</li>
+            <li>Mentionnez les certifications ou normes requises</li>
+            <li>Précisez le délai de livraison souhaité</li>
+            <li>Un budget réaliste attire plus de fournisseurs sérieux</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: var(--shadow);
+        animation: fadeIn 0.5s ease;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .form-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .form-header h1 {
+        font-size: 2rem;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-header p {
+        color: var(--text-light);
+    }
+    
+    /* Barre de progression */
+    .progress-steps {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+    
+    .progress-steps::before {
+        content: '';
+        position: absolute;
+        top: 25px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #e5e7eb;
+        z-index: 1;
+    }
+    
+    .step {
+        position: relative;
+        z-index: 2;
+        background: white;
+        padding: 0 1rem;
+        text-align: center;
+    }
+    
+    .step-number {
+        width: 50px;
+        height: 50px;
+        background: #e5e7eb;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.5rem;
+        font-weight: 700;
+        color: var(--text-light);
+        transition: all 0.3s ease;
+    }
+    
+    .step.active .step-number {
+        background: var(--primary-color);
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+    }
+    
+    .step-label {
+        font-size: 0.875rem;
+        color: var(--text-light);
+        transition: all 0.3s ease;
+    }
+    
+    .step.active .step-label {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    /* Étapes du formulaire */
+    .form-step {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    .form-step.active {
+        display: block;
+    }
+    
+    .form-section {
+        background: var(--background-light);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-section h3 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--primary-color);
+        font-size: 1.1rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    .form-group input.error-border,
+    .form-group select.error-border,
+    .form-group textarea.error-border {
+        border-color: #ef4444;
+        animation: shake 0.3s ease;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+    
+    .form-group input.valid,
+    .form-group select.valid,
+    .form-group textarea.valid {
+        border-color: #10b981;
+        background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="%2310b981"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1rem;
+        padding-right: 2rem;
+    }
+    
+    .form-group textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+    
+    .help-text {
+        color: var(--text-light);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    .char-counter {
+        text-align: right;
+        font-size: 0.75rem;
+        color: var(--text-light);
+        margin-top: 0.25rem;
+    }
+    
+    .validation-message {
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+    }
+    
+    .error {
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    .budget-input {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .budget-input input {
+        flex: 2;
+    }
+    
+    .budget-input select {
+        flex: 1;
+    }
+    
+    /* Navigation */
+    .form-navigation {
+        display: flex;
+        gap: 1rem;
+        justify-content: space-between;
+        margin-top: 1rem;
+    }
+    
+    .btn-next,
+    .btn-prev,
+    .btn-submit {
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-next {
+        background: var(--primary-color);
+        color: white;
+        margin-left: auto;
+    }
+    
+    .btn-prev {
+        background: var(--background-light);
+        color: var(--text-dark);
+        border: 1px solid #e5e7eb;
+    }
+    
+    .btn-submit {
+        background: #10b981;
+        color: white;
+        flex: 1;
+    }
+    
+    .btn-next:hover,
+    .btn-prev:hover,
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-submit:disabled {
+        background: #e5e7eb;
+        color: var(--text-light);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    /* Loading spinner */
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 0.8s linear infinite;
+        margin-right: 8px;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Récapitulatif */
+    .summary-card {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .summary-card h4 {
+        color: var(--primary-color);
+        margin: 1rem 0 0.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .summary-card h4:first-of-type {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+    }
+    
+    .summary-item {
+        display: flex;
+        padding: 0.5rem 0;
+        border-bottom: 1px dashed #e5e7eb;
+    }
+    
+    .summary-label {
+        width: 140px;
+        font-weight: 600;
+        color: var(--text-light);
+    }
+    
+    .summary-value {
+        flex: 1;
+        color: var(--text-dark);
+    }
+    
+    .terms-checkbox {
+        margin: 1rem 0;
+    }
+    
+    .terms-checkbox label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+    }
+    
+    .terms-checkbox input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    
+    .terms-checkbox a {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+    
+    .terms-checkbox a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Conseils */
+    .tips-section {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%);
+        border-radius: 0.5rem;
+        border-left: 4px solid #f59e0b;
+    }
+    
+    .tips-section h4 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #92400e;
+        margin-bottom: 1rem;
+    }
+    
+    .tips-section ul {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .tips-section li {
+        padding: 0.5rem 0;
+        color: #92400e;
+        position: relative;
+        padding-left: 1.5rem;
+    }
+    
+    .tips-section li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: #10b981;
+        font-weight: 700;
+    }
+    
+    /* Alertes */
+    .alert {
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .alert-success {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #a7f3d0;
+    }
+    
+    .alert-error {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 1rem;
+        }
+        
+        .progress-steps {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .progress-steps::before {
+            display: none;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .step-number {
+            margin: 0;
+        }
+        
+        .form-navigation {
+            flex-direction: column;
+        }
+        
+        .btn-next,
+        .btn-prev,
+        .btn-submit {
+            width: 100%;
+        }
+        
+        .summary-item {
+            flex-direction: column;
+        }
+        
+        .summary-label {
+            width: auto;
+            margin-bottom: 0.25rem;
+        }
+        
+        .budget-input {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ==================== LISTE COMPLÈTE DES PAYS ====================
+    const countries = [
+        {code: 'AF', name: 'Afghanistan'}, {code: 'ZA', name: 'Afrique du Sud'},
+        {code: 'AL', name: 'Albanie'}, {code: 'DZ', name: 'Algérie'},
+        {code: 'DE', name: 'Allemagne'}, {code: 'FR', name: 'France'},
+        {code: 'BE', name: 'Belgique'}, {code: 'CA', name: 'Canada'},
+        {code: 'CN', name: 'Chine'}, {code: 'US', name: 'États-Unis'},
+        {code: 'IN', name: 'Inde'}, {code: 'IT', name: 'Italie'},
+        {code: 'JP', name: 'Japon'}, {code: 'MA', name: 'Maroc'},
+        {code: 'NL', name: 'Pays-Bas'}, {code: 'PT', name: 'Portugal'},
+        {code: 'GB', name: 'Royaume-Uni'}, {code: 'RU', name: 'Russie'},
+        {code: 'SN', name: 'Sénégal'}, {code: 'CH', name: 'Suisse'},
+        {code: 'TN', name: 'Tunisie'}, {code: 'TR', name: 'Turquie'},
+        {code: 'ES', name: 'Espagne'}, {code: 'BR', name: 'Brésil'},
+        {code: 'VN', name: 'Vietnam'}, {code: 'TH', name: 'Thaïlande'}
+    ].sort((a, b) => a.name.localeCompare(b.name));
+    
+    // Transformation du champ pays
+    function transformCountryField(fieldId) {
+        const inputElement = document.getElementById(fieldId);
+        if (!inputElement || inputElement.tagName === 'SELECT') return;
+        
+        const currentValue = inputElement.value;
+        const select = document.createElement('select');
+        
+        select.id = inputElement.id;
+        select.name = inputElement.name;
+        select.className = inputElement.className;
+        if (inputElement.required) select.required = true;
+        
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Sélectionnez un pays';
+        select.appendChild(defaultOption);
+        
+        let hasMatch = false;
+        countries.forEach(country => {
+            const option = document.createElement('option');
+            option.value = country.code;
+            option.textContent = country.name;
+            if (country.code === currentValue || country.name === currentValue) {
+                option.selected = true;
+                hasMatch = true;
+            }
+            select.appendChild(option);
+        });
+        
+        if (currentValue && !hasMatch) {
+            const customOption = document.createElement('option');
+            customOption.value = currentValue;
+            customOption.textContent = currentValue;
+            customOption.selected = true;
+            select.appendChild(customOption);
+        }
+        
+        inputElement.parentNode.replaceChild(select, inputElement);
+    }
+    
+    transformCountryField('id_desired_country');
+    
+    // ==================== COMPTEURS DE CARACTÈRES ====================
+    const productNameField = document.getElementById('id_product_name');
+    const descriptionField = document.getElementById('id_description');
+    const requirementsField = document.getElementById('id_specific_requirements');
+    const productNameCount = document.getElementById('productNameCount');
+    const descriptionCount = document.getElementById('descriptionCount');
+    const requirementsCount = document.getElementById('requirementsCount');
+    
+    if (productNameField && productNameCount) {
+        productNameField.addEventListener('input', () => {
+            productNameCount.textContent = productNameField.value.length;
+        });
+        productNameCount.textContent = productNameField.value.length;
+    }
+    
+    if (descriptionField && descriptionCount) {
+        descriptionField.addEventListener('input', () => {
+            const length = descriptionField.value.length;
+            descriptionCount.textContent = length;
+            if (length < 50 && length > 0) {
+                descriptionCount.style.color = '#ef4444';
+            } else if (length >= 50) {
+                descriptionCount.style.color = '#10b981';
+            } else {
+                descriptionCount.style.color = 'var(--text-light)';
+            }
+        });
+        descriptionCount.textContent = descriptionField.value.length;
+    }
+    
+    if (requirementsField && requirementsCount) {
+        requirementsField.addEventListener('input', () => {
+            requirementsCount.textContent = requirementsField.value.length;
+        });
+        requirementsCount.textContent = requirementsField.value.length;
+    }
+    
+    // ==================== VALIDATION EN TEMPS RÉEL ====================
+    const quantityField = document.getElementById('id_desired_quantity');
+    const quantityValidation = document.getElementById('quantityValidation');
+    
+    if (quantityField) {
+        quantityField.addEventListener('input', function() {
+            const value = parseFloat(this.value);
+            if (this.value && (isNaN(value) || value <= 0)) {
+                quantityValidation.textContent = '❌ La quantité doit être un nombre supérieur à 0';
+                quantityValidation.style.color = '#ef4444';
+                this.classList.add('error-border');
+                this.classList.remove('valid');
+            } else if (this.value && value > 0) {
+                quantityValidation.textContent = '✓ Quantité valide';
+                quantityValidation.style.color = '#10b981';
+                this.classList.remove('error-border');
+                this.classList.add('valid');
+            } else {
+                quantityValidation.textContent = '';
+                this.classList.remove('error-border', 'valid');
+            }
+        });
+    }
+    
+    // Validation des champs requis
+    const requiredFields = document.querySelectorAll('[required]');
+    requiredFields.forEach(field => {
+        field.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.classList.add('error-border');
+                this.classList.remove('valid');
+            } else {
+                this.classList.remove('error-border');
+                this.classList.add('valid');
+            }
+        });
+        field.addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                this.classList.remove('error-border');
+                this.classList.add('valid');
+            }
+        });
+    });
+    
+    // ==================== AUTO-SAUVEGARDE ====================
+    let autosaveTimeout;
+    const form = document.getElementById('requestForm');
+    const formData = {};
+    
+    function autoSave() {
+        const formElements = form.querySelectorAll('input, select, textarea');
+        formElements.forEach(element => {
+            if (element.id && element.type !== 'file' && element.type !== 'checkbox') {
+                formData[element.id] = element.value;
+            }
+        });
+        localStorage.setItem('requestFormAutosave', JSON.stringify(formData));
+        showAutosaveNotification();
+    }
+    
+    function showAutosaveNotification() {
+        let notification = document.querySelector('.autosave-notification');
+        if (!notification) {
+            notification = document.createElement('div');
+            notification.className = 'autosave-notification';
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: #10b981;
+                color: white;
+                padding: 0.5rem 1rem;
+                border-radius: 0.5rem;
+                font-size: 0.875rem;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            document.body.appendChild(notification);
+        }
+        notification.textContent = '✓ Formulaire sauvegardé';
+        notification.style.display = 'block';
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 2000);
+    }
+    
+    form.addEventListener('input', function() {
+        clearTimeout(autosaveTimeout);
+        autosaveTimeout = setTimeout(autoSave, 2000);
+    });
+    
+    // Restaurer les données sauvegardées
+    const savedData = localStorage.getItem('requestFormAutosave');
+    if (savedData && !window.location.href.includes('edit')) {
+        const data = JSON.parse(savedData);
+        Object.keys(data).forEach(key => {
+            const element = document.getElementById(key);
+            if (element && element.value === '') {
+                element.value = data[key];
+                element.classList.add('valid');
+            }
+        });
+    }
+    
+    // ==================== TERMS CHECKBOX ====================
+    const termsCheckbox = document.getElementById('terms');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (termsCheckbox) {
+        termsCheckbox.addEventListener('change', function() {
+            submitBtn.disabled = !this.checked;
+        });
+    }
+    
+    // ==================== SUBMIT AVEC LOADING ====================
+    form.addEventListener('submit', function(e) {
+        if (!validateAllSteps()) {
+            e.preventDefault();
+            showErrorAlert('Veuillez remplir tous les champs obligatoires correctement');
+            return;
+        }
+        
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loading-spinner"></span> Publication en cours...';
+        
+        setTimeout(() => {
+            if (submitBtn.disabled) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }, 10000);
+    });
+    
+    function validateAllSteps() {
+        let isValid = true;
+        
+        // Valider étape 1
+        const productName = document.getElementById('id_product_name');
+        const category = document.getElementById('id_category');
+        const description = document.getElementById('id_description');
+        
+        if (!productName.value.trim()) isValid = false;
+        if (!category.value) isValid = false;
+        if (!description.value.trim() || description.value.length < 50) isValid = false;
+        
+        // Valider étape 2
+        const quantity = document.getElementById('id_desired_quantity');
+        const unit = document.getElementById('id_unit_of_measure');
+        const country = document.getElementById('id_desired_country');
+        
+        if (!quantity.value || parseFloat(quantity.value) <= 0) isValid = false;
+        if (!unit.value) isValid = false;
+        if (!country.value) isValid = false;
+        
+        return isValid;
+    }
+    
+    function showErrorAlert(message) {
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-error';
+        alert.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+        form.insertBefore(alert, form.firstChild);
+        setTimeout(() => alert.remove(), 3000);
+    }
+});
+
+// ==================== NAVIGATION ENTRE ÉTAPES ====================
+let currentStep = 1;
+
+function nextStep(step) {
+    if (validateStep(currentStep)) {
+        document.getElementById('step' + currentStep).classList.remove('active');
+        document.getElementById('step' + step).classList.add('active');
+        
+        document.querySelectorAll('.step').forEach((el, index) => {
+            if (index + 1 <= step) {
+                el.classList.add('active');
+            } else {
+                el.classList.remove('active');
+            }
+        });
+        
+        if (step === 3) {
+            updateSummary();
+        }
+        
+        currentStep = step;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function prevStep(step) {
+    document.getElementById('step' + currentStep).classList.remove('active');
+    document.getElementById('step' + step).classList.add('active');
+    
+    document.querySelectorAll('.step').forEach((el, index) => {
+        if (index + 1 <= step) {
+            el.classList.add('active');
+        } else {
+            el.classList.remove('active');
+        }
+    });
+    
+    currentStep = step;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function validateStep(step) {
+    let isValid = true;
+    let errorMessage = '';
+    
+    if (step === 1) {
+        const productName = document.getElementById('id_product_name');
+        const category = document.getElementById('id_category');
+        const description = document.getElementById('id_description');
+        
+        if (!productName.value.trim()) {
+            showError(productName, 'Le nom du produit est requis');
+            isValid = false;
+            errorMessage = 'Veuillez remplir le nom du produit';
+        }
+        
+        if (!category.value) {
+            showError(category, 'La catégorie est requise');
+            isValid = false;
+            errorMessage = 'Veuillez sélectionner une catégorie';
+        }
+        
+        if (!description.value.trim()) {
+            showError(description, 'La description est requise');
+            isValid = false;
+            errorMessage = 'Veuillez ajouter une description';
+        } else if (description.value.length < 50) {
+            showError(description, 'La description doit contenir au moins 50 caractères');
+            isValid = false;
+            errorMessage = 'La description doit contenir au moins 50 caractères';
+        }
+    }
+    
+    if (step === 2) {
+        const quantity = document.getElementById('id_desired_quantity');
+        const unit = document.getElementById('id_unit_of_measure');
+        const country = document.getElementById('id_desired_country');
+        
+        if (!quantity.value || parseFloat(quantity.value) <= 0) {
+            showError(quantity, 'La quantité doit être supérieure à 0');
+            isValid = false;
+            errorMessage = 'Veuillez indiquer une quantité valide';
+        }
+        
+        if (!unit.value) {
+            showError(unit, 'L\'unité de mesure est requise');
+            isValid = false;
+            errorMessage = 'Veuillez sélectionner une unité de mesure';
+        }
+        
+        if (!country.value) {
+            showError(country, 'Le pays d\'origine est requis');
+            isValid = false;
+            errorMessage = 'Veuillez sélectionner un pays';
+        }
+    }
+    
+    if (!isValid && errorMessage) {
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-error';
+        alert.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${errorMessage}`;
+        const form = document.getElementById('requestForm');
+        form.insertBefore(alert, form.firstChild);
+        setTimeout(() => alert.remove(), 3000);
+    }
+    
+    return isValid;
+}
+
+function showError(element, message) {
+    element.classList.add('error-border');
+    element.classList.remove('valid');
+    
+    // Afficher message d'erreur sous le champ
+    let errorSpan = element.parentNode.querySelector('.field-error');
+    if (!errorSpan) {
+        errorSpan = document.createElement('span');
+        errorSpan.className = 'error field-error';
+        element.parentNode.appendChild(errorSpan);
+    }
+    errorSpan.textContent = message;
+    
+    element.addEventListener('input', function() {
+        this.classList.remove('error-border');
+        if (errorSpan) errorSpan.remove();
+    }, { once: true });
+}
+
+function updateSummary() {
+    const productName = document.getElementById('id_product_name')?.value || '';
+    const category = document.getElementById('id_category')?.options[document.getElementById('id_category')?.selectedIndex]?.text || '';
+    const quantity = document.getElementById('id_desired_quantity')?.value || '';
+    const unit = document.getElementById('id_unit_of_measure')?.value || '';
+    const country = document.getElementById('id_desired_country')?.options[document.getElementById('id_desired_country')?.selectedIndex]?.text || '';
+    const budget = document.getElementById('id_max_budget')?.value || '';
+    const currency = document.getElementById('id_budget_currency')?.options[document.getElementById('id_budget_currency')?.selectedIndex]?.text || '';
+    const delivery = document.getElementById('id_delivery_location')?.value || 'Non spécifié';
+    
+    document.getElementById('summary-product').textContent = productName || 'Non renseigné';
+    document.getElementById('summary-category').textContent = category || 'Non renseignée';
+    document.getElementById('summary-quantity').textContent = quantity ? `${quantity} ${unit}` : 'Non renseignée';
+    document.getElementById('summary-unit').textContent = unit || 'Non renseignée';
+    document.getElementById('summary-country').textContent = country || 'Non renseigné';
+    document.getElementById('summary-budget').textContent = budget ? `${budget} ${currency}` : 'Non spécifié';
+    document.getElementById('summary-delivery').textContent = delivery;
+}
+</script>
+{% endblock %}

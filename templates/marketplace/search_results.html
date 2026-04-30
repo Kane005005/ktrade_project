@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Résultats de recherche - Ktrade Connect{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <div class="search-header">
+        <h1>Résultats de recherche</h1>
+        {% if query %}
+            <p>Recherche pour : <strong>"{{ query }}"</strong></p>
+        {% endif %}
+    </div>
+    
+    <div class="search-tabs">
+        <button class="tab-btn active" data-tab="all">Tous ({{ products.count|add:requests.count }})</button>
+        <button class="tab-btn" data-tab="products">Produits ({{ products.count }})</button>
+        <button class="tab-btn" data-tab="requests">Demandes ({{ requests.count }})</button>
+    </div>
+    
+    <!-- Résultats tous -->
+    <div class="tab-content active" id="tab-all">
+        {% if products or requests %}
+            <div class="results-grid">
+                {% for product in products %}
+                    <div class="result-card product-card">
+                        <div class="result-type">Produit</div>
+                        <h3><a href="{% url 'product-detail' product.id %}">{{ product.name }}</a></h3>
+                        <p class="result-price">{{ product.estimated_price }} {{ product.price_currency }}</p>
+                        <p class="result-supplier">
+                            <i class="fas fa-store"></i> {{ product.supplier.profile.company_name|default:product.supplier.username }}
+                        </p>
+                        <p class="result-location">
+                            <i class="fas fa-map-marker-alt"></i> {{ product.country_of_origin }}
+                        </p>
+                    </div>
+                {% endfor %}
+                
+                {% for request in requests %}
+                    <div class="result-card request-card">
+                        <div class="result-type">Demande</div>
+                        <h3><a href="{% url 'request-detail' request.id %}">{{ request.product_name }}</a></h3>
+                        <p class="result-quantity">
+                            <i class="fas fa-box"></i> Quantité: {{ request.desired_quantity }}
+                        </p>
+                        <p class="result-location">
+                            <i class="fas fa-map-marker-alt"></i> {{ request.desired_country }}
+                        </p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-results">
+                <i class="fas fa-search fa-4x"></i>
+                <h3>Aucun résultat trouvé</h3>
+                <p>Essayez avec d'autres mots-clés</p>
+                <a href="{% url 'product-list' %}" class="btn-primary">Voir tous les produits</a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Résultats produits uniquement -->
+    <div class="tab-content" id="tab-products">
+        {% if products %}
+            <div class="results-grid">
+                {% for product in products %}
+                    <div class="result-card product-card">
+                        <h3><a href="{% url 'product-detail' product.id %}">{{ product.name }}</a></h3>
+                        <p class="result-price">{{ product.estimated_price }} {{ product.price_currency }}</p>
+                        <p class="result-supplier">{{ product.supplier.profile.company_name|default:product.supplier.username }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-results">Aucun produit trouvé</p>
+        {% endif %}
+    </div>
+    
+    <!-- Résultats demandes uniquement -->
+    <div class="tab-content" id="tab-requests">
+        {% if requests %}
+            <div class="results-grid">
+                {% for request in requests %}
+                    <div class="result-card request-card">
+                        <h3><a href="{% url 'request-detail' request.id %}">{{ request.product_name }}</a></h3>
+                        <p>Quantité: {{ request.desired_quantity }}</p>
+                        <p>Pays: {{ request.desired_country }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-results">Aucune demande trouvée</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .search-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    .search-header {
+        margin-bottom: 2rem;
+    }
+    
+    .search-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .search-tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 0.5rem;
+    }
+    
+    .tab-btn {
+        padding: 0.5rem 1rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        color: var(--text-light);
+        position: relative;
+    }
+    
+    .tab-btn.active {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    .tab-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: -0.5rem;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: var(--primary-color);
+    }
+    
+    .tab-content {
+        display: none;
+    }
+    
+    .tab-content.active {
+        display: block;
+    }
+    
+    .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .result-card {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+        position: relative;
+        transition: transform 0.3s ease;
+    }
+    
+    .result-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .result-type {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 1rem;
+        background: var(--background-light);
+        color: var(--text-light);
+    }
+    
+    .product-card .result-type {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .request-card .result-type {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .result-card h3 {
+        margin: 1rem 0 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .result-card h3 a {
+        color: var(--text-dark);
+        text-decoration: none;
+    }
+    
+    .result-price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 3rem;
+        background: white;
+        border-radius: 0.5rem;
+    }
+    
+    .no-results i {
+        color: var(--text-light);
+        margin-bottom: 1rem;
+    }
+    
+    .btn-primary {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: var(--primary-color);
+        color: white;
+        text-decoration: none;
+        border-radius: 0.5rem;
+        margin-top: 1rem;
+    }
+</style>
+
+<script>
+$(document).ready(function() {
+    $('.tab-btn').click(function() {
+        var tab = $(this).data('tab');
+        
+        $('.tab-btn').removeClass('active');
+        $(this).addClass('active');
+        
+        $('.tab-content').removeClass('active');
+        $('#tab-' + tab).addClass('active');
+    });
+});
+</script>
+{% endblock %}

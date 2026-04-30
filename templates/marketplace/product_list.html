@@ -1,0 +1,493 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Produits - Ktrade Connect{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Nos produits</h1>
+    <p>Découvrez les produits de nos fournisseurs du monde entier</p>
+</div>
+
+<div class="marketplace-layout">
+    <!-- Sidebar Filtres -->
+    <aside class="filters-sidebar">
+        <h3>Filtres</h3>
+        <form method="GET" action="{% url 'product-list' %}" class="filters-form">
+            <!-- Catégorie -->
+            <div class="filter-group">
+                <label>Catégorie</label>
+                <select name="category" class="filter-select">
+                    <option value="">Toutes les catégories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.slug }}" {% if request.GET.category == category.slug %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Pays -->
+            <div class="filter-group">
+                <label>Pays d'origine</label>
+                <input type="text" name="country" class="filter-input" 
+                       value="{{ request.GET.country|default:'' }}" 
+                       placeholder="Ex: France, Chine...">
+            </div>
+            
+            <!-- Prix -->
+            <div class="filter-group">
+                <label>Prix (USD)</label>
+                <div class="price-range">
+                    <input type="number" name="min_price" class="filter-input" 
+                           value="{{ request.GET.min_price|default:'' }}" 
+                           placeholder="Min">
+                    <span>-</span>
+                    <input type="number" name="max_price" class="filter-input" 
+                           value="{{ request.GET.max_price|default:'' }}" 
+                           placeholder="Max">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-filter">Appliquer les filtres</button>
+            <a href="{% url 'product-list' %}" class="btn-reset">Réinitialiser</a>
+        </form>
+    </aside>
+    
+    <!-- Liste des produits -->
+    <div class="products-content">
+        <!-- En-tête avec tri -->
+        <div class="products-header">
+            <p class="products-count">{{ page_obj.paginator.count }} produits trouvés</p>
+            
+            <div class="sort-options">
+                <label>Trier par:</label>
+                <select name="sort" class="sort-select" onchange="window.location.href=this.value">
+                    <option value="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}sort=-created_at" 
+                            {% if request.GET.sort == '-created_at' %}selected{% endif %}>
+                        Plus récents
+                    </option>
+                    <option value="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}sort=estimated_price"
+                            {% if request.GET.sort == 'estimated_price' %}selected{% endif %}>
+                        Prix croissant
+                    </option>
+                    <option value="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}sort=-estimated_price"
+                            {% if request.GET.sort == '-estimated_price' %}selected{% endif %}>
+                        Prix décroissant
+                    </option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Grille des produits -->
+        <div class="products-grid">
+            {% for product in products %}
+                <div class="product-card">
+                    <div class="product-image">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="{% static 'images/no-image.jpg' %}" alt="{{ product.name }}">
+                        {% endif %}
+                        
+                        {% if user.is_authenticated %}
+                            <button class="favorite-btn" data-product-id="{{ product.id }}">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="product-info">
+                        <div class="product-category">{{ product.category.name }}</div>
+                        <h3><a href="{% url 'product-detail' product.id %}">{{ product.name }}</a></h3>
+                        
+                        <div class="product-price">
+                            {{ product.estimated_price|floatformat:2 }} {{ product.price_currency }}
+                        </div>
+                        
+                        <div class="product-details">
+                            <p class="product-supplier">
+                                <i class="fas fa-store"></i> 
+                                <a href="{% url 'public-profile' product.supplier.id %}">
+                                    {{ product.supplier.profile.company_name|default:product.supplier.username }}
+                                </a>
+                            </p>
+                            <p class="product-location">
+                                <i class="fas fa-map-marker-alt"></i> {{ product.country_of_origin }}
+                            </p>
+                            <p class="product-quantity">
+                                <i class="fas fa-box"></i> {{ product.quantity_available }} disponibles
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="no-results">
+                    <i class="fas fa-search fa-3x"></i>
+                    <h3>Aucun produit trouvé</h3>
+                    <p>Essayez de modifier vos filtres de recherche.</p>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" class="page-link">&laquo;</a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" class="page-link">&lsaquo;</a>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="page-link active">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" class="page-link">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" class="page-link">&rsaquo;</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" class="page-link">&raquo;</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .page-header h1 {
+        font-size: 2.5rem;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+    
+    .marketplace-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 2rem;
+    }
+    
+    /* Filtres */
+    .filters-sidebar {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow);
+        height: fit-content;
+    }
+    
+    .filters-sidebar h3 {
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary-color);
+    }
+    
+    .filter-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+    }
+    
+    .filter-select,
+    .filter-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .price-range {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    
+    .price-range input {
+        width: calc(50% - 0.25rem);
+    }
+    
+    .btn-filter {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 0.5rem;
+    }
+    
+    .btn-reset {
+        display: block;
+        text-align: center;
+        padding: 0.75rem;
+        color: var(--text-light);
+        text-decoration: none;
+    }
+    
+    /* En-tête des produits */
+    .products-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow);
+    }
+    
+    .products-count {
+        font-weight: 600;
+        color: var(--text-light);
+    }
+    
+    .sort-options {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .sort-select {
+        padding: 0.5rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+    }
+    
+    /* Grille des produits */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .product-card {
+        background: white;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+    
+    .product-image {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+    }
+    
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .product-card:hover .product-image img {
+        transform: scale(1.1);
+    }
+    
+    .favorite-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: white;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow);
+        z-index: 10;
+        transition: background 0.3s ease;
+    }
+    
+    .favorite-btn:hover {
+        background: #fee2e2;
+        color: #ef4444;
+    }
+    
+    .favorite-btn.active i {
+        color: #ef4444;
+        font-weight: 900;
+    }
+    
+    .product-category {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: var(--background-light);
+        color: var(--primary-color);
+        border-radius: 1rem;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .product-info {
+        padding: 1.5rem;
+    }
+    
+    .product-info h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .product-info h3 a {
+        text-decoration: none;
+        color: var(--text-dark);
+    }
+    
+    .product-price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin: 0.5rem 0;
+    }
+    
+    .product-details {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .product-details p {
+        margin: 0.25rem 0;
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+    
+    .product-details i {
+        width: 20px;
+        color: var(--primary-color);
+    }
+    
+    .product-details a {
+        color: var(--text-light);
+        text-decoration: none;
+    }
+    
+    .product-details a:hover {
+        color: var(--primary-color);
+    }
+    
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+    }
+    
+    .page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        color: var(--text-dark);
+        font-weight: 500;
+        box-shadow: var(--shadow);
+    }
+    
+    .page-link.active {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 3rem;
+        background: white;
+        border-radius: 0.5rem;
+        grid-column: 1 / -1;
+    }
+    
+    .no-results i {
+        color: var(--text-light);
+        margin-bottom: 1rem;
+    }
+    
+    .no-results h3 {
+        margin-bottom: 0.5rem;
+    }
+    
+    .no-results p {
+        color: var(--text-light);
+    }
+    
+    @media (max-width: 768px) {
+        .marketplace-layout {
+            grid-template-columns: 1fr;
+        }
+        
+        .filters-sidebar {
+            position: fixed;
+            left: -100%;
+            top: 0;
+            width: 80%;
+            height: 100vh;
+            z-index: 1000;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .filters-sidebar.active {
+            left: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Gestion des favoris
+    $('.favorite-btn').click(function(e) {
+        e.preventDefault();
+        var btn = $(this);
+        var productId = btn.data('product-id');
+        
+        $.ajax({
+            url: '/marketplace/favorite/' + productId + '/',
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                btn.find('i').toggleClass('far fas');
+                if (btn.find('i').hasClass('fas')) {
+                    btn.addClass('active');
+                } else {
+                    btn.removeClass('active');
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

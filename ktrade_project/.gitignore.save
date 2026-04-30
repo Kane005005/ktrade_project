@@ -1,0 +1,126 @@
+# ============================================
+# Fichiers sensibles et variables d'environnement
+# ============================================
+.env
+*.env
+.env.*
+!.env.example
+
+# ============================================
+# Base de données et migrations
+# ============================================
+db.sqlite3
+db.sqlite3-journal
+*.db
+*.sqlite3
+
+# ============================================
+# Fichiers Python et cache
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ============================================
+# Environnement virtuel
+# ============================================
+venv/
+env/
+.venv/
+.env/
+myenv/
+virtualenv/
+.irtualenvs/
+
+# ============================================
+# IDE et éditeurs
+# ============================================
+# PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+
+# VS Code
+.vscode/
+*.code-workspace
+.history/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+.session.vim
+
+# ============================================
+# Fichiers système
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ============================================
+# Médias uploadés par les utilisateurs
+# ============================================
+media/
+mediafiles/
+staticfiles/
+static_root/
+
+# ============================================
+# Logs et fichiers temporaires
+# ============================================
+*.log
+*.pot
+tmp/
+temp/
+*.tmp
+
+# ============================================
+# Tests et couverture
+# ============================================
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+.coverage.*
+*.cover
+
+# ============================================
+# Django spécifique
+# ============================================
+local_settings.py
+settings_local.py
+*.sql
+dump_*.json
+
+# ============================================
+# Dépendances (optionnel - à vous de décider)
+# ============================================
+# Pipfile.lock  # Décommentez si vous utilisez Pipenv
+# poetry.lock   # Décommentez si vous utilisez Poetry
+
+# ============================================
+# Secrets et certificats
+# ============================================
+*.pem
+*.key
+*.crt
+*.p12
+secrets/
+credentials/

@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Notifications - Ktrade Connect{% endblock %}
+
+{% block content %}
+<div class="notifications-container">
+    <div class="notifications-header">
+        <h1>Notifications</h1>
+        
+        {% if unread_count > 0 %}
+            <button class="mark-all-read" onclick="markAllAsRead()">
+                <i class="fas fa-check-double"></i> Tout marquer comme lu
+            </button>
+        {% endif %}
+    </div>
+    
+    <div class="notifications-list">
+        {% for notification in notifications %}
+            <div class="notification-item {% if not notification.is_read %}unread{% endif %}" 
+                 data-notification-id="{{ notification.id }}">
+                <div class="notification-icon">
+                    {% if notification.notification_type == 'message' %}
+                        <i class="fas fa-envelope"></i>
+                    {% elif notification.notification_type == 'offer' %}
+                        <i class="fas fa-hand-holding-usd"></i>
+                    {% else %}
+                        <i class="fas fa-star"></i>
+                    {% endif %}
+                </div>
+                
+                <div class="notification-content">
+                    <p>{{ notification.content }}</p>
+                    <span class="notification-time">{{ notification.created_at|timesince }}</span>
+                </div>
+                
+                {% if notification.link %}
+                    <a href="{{ notification.link }}" class="notification-link">
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="no-notifications">
+                <i class="fas fa-bell fa-3x"></i>
+                <h3>Aucune notification</h3>
+                <p>Vous n'avez pas encore de notifications.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .notifications-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+    
+    .notifications-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .notifications-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .mark-all-read {
+        padding: 0.5rem 1rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .notifications-list {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+    
+    .notification-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f3f4f6;
+        transition: background 0.3s ease;
+    }
+    
+    .notification-item:hover {
+        background: #f9fafb;
+    }
+    
+    .notification-item.unread {
+        background: #eff6ff;
+    }
+    
+    .notification-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .notification-content {
+        flex: 1;
+    }
+    
+    .notification-content p {
+        margin-bottom: 0.25rem;
+    }
+    
+    .notification-time {
+        font-size: 0.875rem;
+        color: var(--text-light);
+    }
+    
+    .notification-link {
+        color: var(--primary-color);
+        font-size: 1.25rem;
+    }
+    
+    .no-notifications {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        color: var(--text-light);
+    }
+    
+    .no-notifications i {
+        color: var(--text-light);
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function markAllAsRead() {
+    $.ajax({
+        url: '{% url "mark-all-read" %}',
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        success: function() {
+            $('.notification-item').removeClass('unread');
+            $('.mark-all-read').hide();
+        }
+    });
+}
+
+// Marquer une notification comme lue au clic
+$('.notification-link').click(function(e) {
+    let item = $(this).closest('.notification-item');
+    if (item.hasClass('unread')) {
+        // Logique pour marquer comme lu
+        item.removeClass('unread');
+    }
+});
+</script>
+{% endblock %}

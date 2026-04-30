@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mes conversations - Ktrade Connect{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="chat-sidebar">
+        <div class="chat-header">
+            <h2>Messages</h2>
+        </div>
+        
+        <div class="conversations-list">
+            {% for conversation in conversations %}
+                <a href="{% url 'chat-detail' conversation.id %}" class="conversation-item {% if conversation.unread_count > 0 %}unread{% endif %}">
+                    
+                    {# Calculer l'autre participant directement dans la boucle #}
+                    {% with other_user=conversation.get_other_participant %}
+                    
+                    <div class="conversation-avatar">
+                        {% if other_user and other_user.profile and other_user.profile.profile_picture %}
+                            <img src="{{ other_user.profile.profile_picture.url }}" alt="{{ other_user.username }}">
+                        {% else %}
+                            <div class="avatar-placeholder">
+                                {% if other_user %}
+                                    {{ other_user.username|first|upper }}
+                                {% else %}
+                                    ?
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        
+                        {% if conversation.unread_count > 0 %}
+                            <span class="unread-count">{{ conversation.unread_count }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="conversation-info">
+                        <div class="conversation-header">
+                            <span class="conversation-name">
+                                {% if other_user %}
+                                    {% if other_user.profile and other_user.profile.company_name %}
+                                        {{ other_user.profile.company_name }}
+                                    {% else %}
+                                        {{ other_user.username }}
+                                    {% endif %}
+                                {% else %}
+                                    Utilisateur inconnu
+                                {% endif %}
+                            </span>
+                            <span class="conversation-time">
+                                {{ conversation.updated_at|timesince }}
+                            </span>
+                        </div>
+                        
+                        <div class="conversation-last-message">
+                            {% with last_msg=conversation.last_message %}
+                                {% if last_msg %}
+                                    <span class="message-sender">
+                                        {% if last_msg.sender == request.user %}Vous:{% endif %}
+                                    </span>
+                                    {{ last_msg.content|truncatechars:30 }}
+                                {% else %}
+                                    <span class="no-message">Aucun message</span>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                    
+                    {% endwith %}
+                </a>
+            {% empty %}
+                <div class="no-conversations">
+                    <i class="fas fa-comments fa-3x"></i>
+                    <p>Aucune conversation pour le moment</p>
+                    <p>Commencez à discuter avec des fournisseurs ou acheteurs</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="chat-main">
+        <div class="welcome-screen">
+            <i class="fas fa-comment-dots fa-4x"></i>
+            <h3>Vos messages</h3>
+            <p>Sélectionnez une conversation pour commencer à discuter</p>
+            
+            <div class="suggestions">
+                <h4>Suggestions :</h4>
+                <div class="suggestion-buttons">
+                    <a href="{% url 'product-list' %}" class="suggestion-btn">
+                        <i class="fas fa-box"></i> Voir les produits
+                    </a>
+                    <a href="{% url 'request-list' %}" class="suggestion-btn">
+                        <i class="fas fa-clipboard-list"></i> Voir les demandes
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-container {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        height: calc(100vh - 200px);
+        background: white;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+    
+    .chat-sidebar {
+        border-right: 1px solid #e5e7eb;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .chat-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .chat-header h2 {
+        font-size: 1.25rem;
+        color: var(--text-dark);
+    }
+    
+    .conversations-list {
+        flex: 1;
+        overflow-y: auto;
+    }
+    
+    .conversation-item {
+        display: flex;
+        padding: 1rem 1.5rem;
+        text-decoration: none;
+        color: var(--text-dark);
+        border-bottom: 1px solid #f3f4f6;
+        transition: background 0.3s ease;
+    }
+    
+    .conversation-item:hover {
+        background: var(--background-light);
+    }
+    
+    .conversation-item.unread {
+        background: #eff6ff;
+    }
+    
+    .conversation-avatar {
+        position: relative;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .conversation-avatar img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .avatar-placeholder {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    
+    .unread-count {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #ef4444;
+        color: white;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 1rem;
+        min-width: 20px;
+        text-align: center;
+    }
+    
+    .conversation-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .conversation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.25rem;
+    }
+    
+    .conversation-name {
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .conversation-time {
+        font-size: 0.75rem;
+        color: var(--text-light);
+    }
+    
+    .conversation-last-message {
+        font-size: 0.875rem;
+        color: var(--text-light);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .message-sender {
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+    
+    .no-message {
+        color: var(--text-light);
+        font-style: italic;
+    }
+    
+    .chat-main {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f9fafb;
+    }
+    
+    .welcome-screen {
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .welcome-screen i {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+    
+    .welcome-screen h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .welcome-screen p {
+        color: var(--text-light);
+        margin-bottom: 2rem;
+    }
+    
+    .suggestions {
+        margin-top: 2rem;
+    }
+    
+    .suggestions h4 {
+        margin-bottom: 1rem;
+    }
+    
+    .suggestion-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+    
+    .suggestion-btn {
+        padding: 0.75rem 1.5rem;
+        background: white;
+        color: var(--text-dark);
+        text-decoration: none;
+        border-radius: 0.5rem;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+    
+    .suggestion-btn:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .no-conversations {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        color: var(--text-light);
+    }
+    
+    .no-conversations i {
+        color: var(--text-light);
+        margin-bottom: 1rem;
+    }
+    
+    @media (max-width: 768px) {
+        .chat-container {
+            grid-template-columns: 1fr;
+            height: auto;
+        }
+        
+        .chat-sidebar {
+            height: 400px;
+        }
+    }
+</style>
+{% endblock %}

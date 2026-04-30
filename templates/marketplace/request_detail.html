@@ -1,0 +1,1227 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ request.product_name }} - Demande d'achat{% endblock %}
+
+{% block content %}
+<div class="request-detail-container">
+    <!-- Fil d'Ariane -->
+    <nav class="breadcrumb">
+        <a href="{% url 'home' %}"><i class="fas fa-home"></i> Accueil</a>
+        <i class="fas fa-chevron-right"></i>
+        <a href="{% url 'request-list' %}">Demandes</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>{{ request.product_name|truncatechars:30 }}</span>
+    </nav>
+    
+    <div class="request-detail-grid">
+        <!-- Informations principales -->
+        <div class="request-main">
+            <div class="request-header">
+                <h1>{{ request.product_name }}</h1>
+                <div class="request-meta">
+                    <span class="request-category">
+                        <i class="fas fa-tag"></i> {{ request.category.name }}
+                    </span>
+                    <span class="request-status {% if request.is_active %}active{% else %}inactive{% endif %}">
+                        {% if request.is_active %}
+                            <i class="fas fa-check-circle"></i> Active
+                        {% else %}
+                            <i class="fas fa-times-circle"></i> Fermée
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Détails -->
+            <div class="request-details-card">
+                <h3><i class="fas fa-info-circle"></i> Détails de la demande</h3>
+                
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="detail-content">
+                            <span class="detail-label">Quantité désirée</span>
+                            <span class="detail-value">{{ request.desired_quantity }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="detail-content">
+                            <span class="detail-label">Pays souhaité</span>
+                            <span class="detail-value">{{ request.desired_country }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if request.max_budget %}
+                        <div class="detail-item highlight">
+                            <div class="detail-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="detail-content">
+                                <span class="detail-label">Budget maximum</span>
+                                <span class="detail-value budget">{{ request.max_budget|floatformat:0 }} {{ request.budget_currency }}</span>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="detail-content">
+                            <span class="detail-label">Date de publication</span>
+                            <span class="detail-value">{{ request.created_at|date:"d/m/Y" }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="detail-content">
+                            <span class="detail-label">Dernière mise à jour</span>
+                            <span class="detail-value">{{ request.updated_at|date:"d/m/Y"|default:request.created_at|date:"d/m/Y" }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="detail-content">
+                            <span class="detail-label">Vues</span>
+                            <span class="detail-value">{{ request.views_count|default:"0" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Description -->
+            <div class="request-description-card">
+                <h3><i class="fas fa-align-left"></i> Description détaillée</h3>
+                <div class="description-content">
+                    {{ request.description|linebreaks }}
+                </div>
+            </div>
+            
+            <!-- Actions pour les fournisseurs -->
+            {% if user.is_authenticated and user.profile.user_type == 'fournisseur' and request.is_active %}
+                <div class="supplier-actions">
+                    <div class="supplier-actions-content">
+                        <h3>Intéressé par cette demande ?</h3>
+                        <p>Faites une offre ou contactez l'acheteur directement</p>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn-make-offer" onclick="makeOffer({{ request.id }})">
+                            <i class="fas fa-hand-holding-usd"></i> Faire une offre
+                        </button>
+                        <button class="btn-contact" onclick="startConversation({{ request.buyer.id }})">
+                            <i class="fas fa-envelope"></i> Contacter l'acheteur
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Sidebar avec infos acheteur -->
+        <aside class="request-sidebar">
+            <div class="buyer-card">
+                <h3><i class="fas fa-user"></i> Acheteur</h3>
+                
+                <div class="buyer-info">
+                    <div class="buyer-avatar-large">
+                        {% if request.buyer.profile.profile_picture %}
+                            <img src="{{ request.buyer.profile.profile_picture.url }}" alt="{{ request.buyer.username }}">
+                        {% else %}
+                            <i class="fas fa-user-circle fa-4x"></i>
+                        {% endif %}
+                    </div>
+                    
+                    <h4>{{ request.buyer.profile.company_name|default:request.buyer.username }}</h4>
+                    
+                    {% if request.buyer.profile.city and request.buyer.profile.country %}
+                        <p class="buyer-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{ request.buyer.profile.city }}, {{ request.buyer.profile.country }}
+                        </p>
+                    {% endif %}
+                    
+                    <div class="buyer-stats">
+                        <div class="stat">
+                            <span class="stat-value">{{ request.buyer.requests.count }}</span>
+                            <span class="stat-label">Demandes</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">4.5</span>
+                            <span class="stat-label">Note</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">{{ request.buyer.date_joined|date:"Y" }}</span>
+                            <span class="stat-label">Membre</span>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'public-profile' request.buyer.id %}" class="btn-view-profile">
+                        <i class="fas fa-external-link-alt"></i> Voir le profil
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Actions rapides -->
+            <div class="quick-actions">
+                <button class="btn-share" onclick="shareRequest()">
+                    <i class="fas fa-share-alt"></i> Partager
+                </button>
+                
+                <button class="btn-report" onclick="reportRequest()">
+                    <i class="fas fa-flag"></i> Signaler
+                </button>
+            </div>
+            
+            <!-- Informations supplémentaires -->
+            <div class="request-meta-info">
+                <div class="meta-item">
+                    <i class="fas fa-hashtag"></i>
+                    <span>Référence: #{{ request.id }}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Expire dans: {{ request.expires_in|default:"30 jours" }}</span>
+                </div>
+            </div>
+        </aside>
+    </div>
+    
+    <!-- Demandes similaires -->
+    {% if similar_requests %}
+        <div class="similar-requests">
+            <h2><i class="fas fa-tags"></i> Demandes similaires</h2>
+            
+            <div class="requests-grid">
+                {% for similar in similar_requests %}
+                    <div class="similar-request-card">
+                        <div class="similar-request-header">
+                            <span class="similar-category">{{ similar.category.name }}</span>
+                            <span class="similar-date">{{ similar.created_at|date:"d/m/Y" }}</span>
+                        </div>
+                        <h3><a href="{% url 'request-detail' similar.id %}">{{ similar.product_name|truncatechars:40 }}</a></h3>
+                        <div class="similar-details">
+                            <p><i class="fas fa-box"></i> {{ similar.desired_quantity }}</p>
+                            <p><i class="fas fa-map-marker-alt"></i> {{ similar.desired_country }}</p>
+                        </div>
+                        <a href="{% url 'request-detail' similar.id %}" class="similar-link">
+                            Voir la demande <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Modal pour faire une offre -->
+<div id="offer-modal" class="modal">
+    <div class="modal-content">
+        <button class="close-modal">&times;</button>
+        <h2><i class="fas fa-hand-holding-usd"></i> Faire une offre</h2>
+        <p class="modal-subtitle">Pour la demande : {{ request.product_name }}</p>
+        
+        <!-- CORRECTION : balise url sans espaces -->
+        <form id="offer-form" method="POST" action="{% url 'make-offer' request.id %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="price">
+                    <i class="fas fa-tag"></i> Votre prix proposé
+                </label>
+                <div class="price-input-wrapper">
+                    <input type="number" name="price" id="price" step="0.01" min="0" required 
+                           placeholder="Ex: 1500.00" class="price-input">
+                    <span class="currency-badge">{{ request.budget_currency|default:"USD" }}</span>
+                </div>
+                <small class="help-text">Prix unitaire ou total selon votre offre</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="quantity">
+                    <i class="fas fa-boxes"></i> Quantité disponible
+                </label>
+                <input type="number" name="quantity" id="quantity" min="1" required 
+                       placeholder="Ex: 100" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="message">
+                    <i class="fas fa-envelope"></i> Message à l'acheteur
+                </label>
+                <textarea name="message" id="message" rows="4" required 
+                          placeholder="Décrivez votre offre, les conditions, la qualité, les délais, etc..." 
+                          class="form-control"></textarea>
+                <small class="help-text">Soyez précis pour augmenter vos chances</small>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn-submit-offer">
+                    <i class="fas fa-paper-plane"></i> Envoyer l'offre
+                </button>
+                <button type="button" class="btn-cancel" onclick="$('#offer-modal').hide()">
+                    Annuler
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Variables */
+    :root {
+        --card-hover: translateY(-4px);
+    }
+
+    /* Container principal */
+    .request-detail-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: var(--shadow);
+        flex-wrap: wrap;
+    }
+
+    .breadcrumb a {
+        color: var(--text-light);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .breadcrumb a:hover {
+        color: var(--primary-color);
+    }
+
+    .breadcrumb i {
+        color: var(--text-light);
+        font-size: 0.8rem;
+    }
+
+    /* Grille principale */
+    .request-detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    /* Main content */
+    .request-main {
+        background: white;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .request-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .request-header h1 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: var(--text-dark);
+        line-height: 1.3;
+    }
+
+    .request-meta {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .request-category {
+        background: var(--background-light);
+        color: var(--primary-color);
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .request-status {
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .request-status.active {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .request-status.inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    /* Cards de détails */
+    .request-details-card,
+    .request-description-card {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .request-details-card h3,
+    .request-description-card h3 {
+        margin-bottom: 1.5rem;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.25rem;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        background: var(--background-light);
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+
+    .detail-item:hover {
+        transform: translateY(-2px);
+        border-color: var(--primary-color);
+        box-shadow: var(--shadow);
+    }
+
+    .detail-item.highlight {
+        background: linear-gradient(135deg, #dbeafe, #eff6ff);
+        grid-column: span 2;
+    }
+
+    .detail-icon {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-color);
+        font-size: 1.2rem;
+    }
+
+    .detail-content {
+        flex: 1;
+    }
+
+    .detail-label {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--text-light);
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .detail-value.budget {
+        color: var(--primary-color);
+        font-size: 1.25rem;
+    }
+
+    /* Description */
+    .description-content {
+        line-height: 1.8;
+        color: var(--text-dark);
+        background: var(--background-light);
+        padding: 1.5rem;
+        border-radius: 1rem;
+    }
+
+    /* Actions fournisseur */
+    .supplier-actions {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 2rem;
+        border-radius: 1.5rem;
+        text-align: center;
+        margin-top: 2rem;
+    }
+
+    .supplier-actions-content {
+        margin-bottom: 1.5rem;
+    }
+
+    .supplier-actions h3 {
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+    }
+
+    .supplier-actions p {
+        opacity: 0.9;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-make-offer,
+    .btn-contact {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 3rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .btn-make-offer {
+        background: white;
+        color: var(--primary-color);
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+
+    .btn-make-offer:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+    }
+
+    .btn-contact {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: 2px solid white;
+        backdrop-filter: blur(5px);
+    }
+
+    .btn-contact:hover {
+        background: white;
+        color: var(--primary-color);
+        transform: translateY(-2px);
+    }
+
+    /* Sidebar */
+    .request-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .buyer-card {
+        background: white;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .buyer-card h3 {
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-dark);
+    }
+
+    .buyer-info {
+        text-align: center;
+    }
+
+    .buyer-avatar-large {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        overflow: hidden;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 4px solid white;
+        box-shadow: var(--shadow);
+    }
+
+    .buyer-avatar-large img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .buyer-avatar-large i {
+        color: white;
+        font-size: 3rem;
+    }
+
+    .buyer-info h4 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+    }
+
+    .buyer-location {
+        color: var(--text-light);
+        margin: 0.5rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .buyer-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin: 1.5rem 0;
+        padding: 1rem 0;
+        border-top: 1px solid #e5e7eb;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .stat {
+        text-align: center;
+    }
+
+    .stat-value {
+        display: block;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-light);
+    }
+
+    .btn-view-profile {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 2rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        text-decoration: none;
+        border-radius: 3rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-view-profile:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    /* Quick actions */
+    .quick-actions {
+        background: white;
+        border-radius: 1.5rem;
+        padding: 1rem;
+        box-shadow: var(--shadow);
+        display: flex;
+        gap: 0.5rem;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .btn-share,
+    .btn-report {
+        flex: 1;
+        padding: 0.75rem;
+        border: none;
+        border-radius: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-share {
+        background: var(--background-light);
+        color: var(--text-dark);
+    }
+
+    .btn-share:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-report {
+        background: #fee2e2;
+        color: #ef4444;
+    }
+
+    .btn-report:hover {
+        background: #ef4444;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Meta info */
+    .request-meta-info {
+        background: white;
+        border-radius: 1.5rem;
+        padding: 1rem;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0;
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    .meta-item i {
+        width: 20px;
+        color: var(--primary-color);
+    }
+
+    /* Demandes similaires */
+    .similar-requests {
+        margin-top: 3rem;
+    }
+
+    .similar-requests h2 {
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-dark);
+    }
+
+    .requests-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .similar-request-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        border: 1px solid #e5e7eb;
+    }
+
+    .similar-request-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary-color);
+    }
+
+    .similar-request-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .similar-category {
+        background: var(--background-light);
+        color: var(--primary-color);
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.8rem;
+    }
+
+    .similar-date {
+        color: var(--text-light);
+        font-size: 0.8rem;
+    }
+
+    .similar-request-card h3 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .similar-request-card h3 a {
+        color: var(--text-dark);
+        text-decoration: none;
+    }
+
+    .similar-request-card h3 a:hover {
+        color: var(--primary-color);
+    }
+
+    .similar-details {
+        margin-bottom: 1rem;
+    }
+
+    .similar-details p {
+        margin: 0.25rem 0;
+        color: var(--text-light);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .similar-details i {
+        width: 16px;
+        color: var(--primary-color);
+    }
+
+    .similar-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .similar-link:hover {
+        gap: 0.75rem;
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 2.5rem;
+        border-radius: 2rem;
+        max-width: 550px;
+        width: 90%;
+        position: relative;
+        animation: slideIn 0.3s ease;
+        box-shadow: var(--shadow-xl);
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateY(-30px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .close-modal {
+        position: absolute;
+        right: 1.5rem;
+        top: 1.5rem;
+        font-size: 1.5rem;
+        cursor: pointer;
+        background: none;
+        border: none;
+        color: var(--text-light);
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+
+    .close-modal:hover {
+        background: var(--background-light);
+        color: var(--primary-color);
+    }
+
+    .modal h2 {
+        margin-bottom: 0.5rem;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .modal-subtitle {
+        color: var(--text-light);
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    #offer-form .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    #offer-form label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    #offer-form label i {
+        color: var(--primary-color);
+        width: 20px;
+    }
+
+    .price-input-wrapper {
+        position: relative;
+    }
+
+    .price-input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .currency-badge {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: var(--background-light);
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.9rem;
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+
+    .form-control:focus,
+    .price-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .help-text {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--text-light);
+        margin-top: 0.25rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn-submit-offer,
+    .btn-cancel {
+        flex: 1;
+        padding: 1rem;
+        border: none;
+        border-radius: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .btn-submit-offer {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+    }
+
+    .btn-submit-offer:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .btn-cancel {
+        background: var(--background-light);
+        color: var(--text-dark);
+        border: 2px solid #e5e7eb;
+    }
+
+    .btn-cancel:hover {
+        background: #fee2e2;
+        color: #ef4444;
+        border-color: #ef4444;
+        transform: translateY(-2px);
+    }
+
+    /* Notification */
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 0.75rem;
+        background: white;
+        box-shadow: var(--shadow-lg);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transform: translateX(120%);
+        transition: transform 0.3s ease;
+        z-index: 9999;
+        max-width: 350px;
+    }
+
+    .notification.show {
+        transform: translateX(0);
+    }
+
+    .notification-success {
+        background: #d1fae5;
+        color: #065f46;
+        border-left: 4px solid #10b981;
+    }
+
+    .notification-error {
+        background: #fee2e2;
+        color: #991b1b;
+        border-left: 4px solid #ef4444;
+    }
+
+    .notification i {
+        font-size: 1.2rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 968px) {
+        .request-detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .detail-item.highlight {
+            grid-column: span 1;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .request-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .quick-actions {
+            flex-direction: column;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .notification {
+            top: auto;
+            bottom: 20px;
+            right: 20px;
+            left: 20px;
+            max-width: none;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .modal-content {
+            padding: 1.5rem;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function makeOffer(requestId) {
+    $('#offer-modal').show();
+}
+
+function startConversation(userId) {
+    // CORRECTION : Construction correcte de l'URL
+    const chatUrl = "{% url 'start-chat' 0 %}".replace('0', userId);
+    window.location.href = chatUrl;
+}
+
+function shareRequest() {
+    // Utiliser l'API Web Share si disponible
+    if (navigator.share) {
+        navigator.share({
+            title: '{{ request.product_name|escapejs }}',
+            text: '{{ request.description|truncatewords:30|escapejs }}',
+            url: window.location.href,
+        }).then(() => {
+            showNotification('Partage réussi !', 'success');
+        }).catch((error) => {
+            console.log('Erreur de partage:', error);
+        });
+    } else {
+        // Fallback: copier le lien
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            showNotification('Lien copié dans le presse-papier !', 'success');
+        }).catch(() => {
+            alert('Lien : ' + window.location.href);
+        });
+    }
+}
+
+function reportRequest() {
+    if (confirm('Voulez-vous signaler cette demande ?')) {
+        $.ajax({
+            url: '{% url "report-request" request.id %}',
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                showNotification(response.message || 'Demande signalée. Merci de votre aide !', 'success');
+            },
+            error: function(xhr) {
+                let message = 'Erreur lors du signalement';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    message = xhr.responseJSON.message;
+                }
+                showNotification(message, 'error');
+            }
+        });
+    }
+}
+
+function showNotification(message, type) {
+    // Supprimer les notifications existantes
+    $('.notification').remove();
+    
+    // Créer une notification
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animation d'entrée
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
+    // Disparaître après 3 secondes
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}
+
+$(document).ready(function() {
+    // Fermer le modal avec le bouton X
+    $('.close-modal').click(function() {
+        $('#offer-modal').hide();
+    });
+    
+    // Fermer le modal en cliquant en dehors
+    $(window).click(function(event) {
+        if ($(event.target).is('#offer-modal')) {
+            $('#offer-modal').hide();
+        }
+    });
+    
+    // Fermer le modal avec la touche Echap
+    $(document).keydown(function(e) {
+        if (e.key === 'Escape' && $('#offer-modal').is(':visible')) {
+            $('#offer-modal').hide();
+        }
+    });
+    
+    // Animation des détails au scroll
+    $(window).scroll(function() {
+        $('.detail-item').each(function(index) {
+            var delay = index * 0.1;
+            $(this).css('transition-delay', delay + 's');
+        });
+    });
+});
+</script>
+{% endblock %}

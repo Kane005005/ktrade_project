@@ -1,0 +1,367 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load socialaccount %}
+
+{% block title %}Inscription - Ktrade Connect{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Créer un compte</h1>
+            <p>Rejoignez la communauté Ktrade Connect</p>
+        </div>
+        
+        <!-- Social Login -->
+        {% load socialaccount %}
+        <a href="{% provider_login_url 'google' %}" class="btn-google">
+            <i class="fab fa-google"></i>
+            Continuer avec Google
+        </a>
+        
+        <div class="auth-divider">
+            <span>ou</span>
+        </div>
+        
+        <!-- Formulaire d'inscription -->
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {% for error in form.non_field_errors %}
+                        <p class="error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- Informations de base -->
+            <div class="form-section">
+                <h3>Informations de connexion</h3>
+                
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">Nom d'utilisateur *</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <p class="error">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">Email *</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <p class="error">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.password1.id_for_label }}">Mot de passe *</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <p class="error">{{ form.password1.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.password2.id_for_label }}">Confirmer le mot de passe *</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <p class="error">{{ form.password2.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Type d'utilisateur -->
+            <div class="form-section">
+                <h3>Type de compte</h3>
+                
+                <div class="form-group">
+                    <label for="{{ form.user_type.id_for_label }}">Vous êtes *</label>
+                    {{ form.user_type }}
+                    {% if form.user_type.errors %}
+                        <p class="error">{{ form.user_type.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Informations personnelles -->
+            <div class="form-section">
+                <h3>Informations personnelles</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.phone.id_for_label }}">Téléphone</label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                            <p class="error">{{ form.phone.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.country.id_for_label }}">Pays *</label>
+                        {{ form.country }}
+                        {% if form.country.errors %}
+                            <p class="error">{{ form.country.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.city.id_for_label }}">Ville *</label>
+                        {{ form.city }}
+                        {% if form.city.errors %}
+                            <p class="error">{{ form.city.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group" id="company-field" style="display: none;">
+                        <label for="{{ form.company_name.id_for_label }}">Nom de l'entreprise</label>
+                        {{ form.company_name }}
+                        {% if form.company_name.errors %}
+                            <p class="error">{{ form.company_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.bio.id_for_label }}">Bio / Description</label>
+                    {{ form.bio }}
+                    {% if form.bio.errors %}
+                        <p class="error">{{ form.bio.errors.0 }}</p>
+                    {% endif %}
+                    <p class="help-text">Une brève description de votre activité</p>
+                </div>
+            </div>
+            
+            <div class="form-footer">
+                <button type="submit" class="btn-submit">Créer mon compte</button>
+                
+                <p class="auth-redirect">
+                    Déjà un compte ? 
+                    <!-- CORRECTION ICI : account_login -> custom-login -->
+                    <a href="{% url 'custom-login' %}">Se connecter</a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+    
+    .auth-card {
+        max-width: 600px;
+        width: 100%;
+        background: white;
+        border-radius: 0.5rem;
+        padding: 2rem;
+        box-shadow: var(--shadow);
+    }
+    
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .auth-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .auth-header p {
+        color: var(--text-light);
+    }
+    
+    .social-login {
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn-google {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.75rem;
+        background: white;
+        color: var(--text-dark);
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-weight: 500;
+        transition: background 0.3s ease;
+    }
+    
+    .btn-google:hover {
+        background: var(--background-light);
+    }
+    
+    .auth-divider {
+        text-align: center;
+        margin: 1.5rem 0;
+        position: relative;
+    }
+    
+    .auth-divider::before,
+    .auth-divider::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: calc(50% - 30px);
+        height: 1px;
+        background: #e5e7eb;
+    }
+    
+    .auth-divider::before {
+        left: 0;
+    }
+    
+    .auth-divider::after {
+        right: 0;
+    }
+    
+    .auth-divider span {
+        background: white;
+        padding: 0 1rem;
+        color: var(--text-light);
+    }
+    
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .form-section h3 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    .error {
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    .help-text {
+        color: var(--text-light);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    .form-errors {
+        background: #fee2e2;
+        border: 1px solid #ef4444;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-footer {
+        text-align: center;
+        margin-top: 2rem;
+    }
+    
+    .btn-submit {
+        width: 100%;
+        padding: 1rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 1rem;
+    }
+    
+    .auth-redirect {
+        color: var(--text-light);
+    }
+    
+    .auth-redirect a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    @media (max-width: 768px) {
+        .auth-container {
+            padding: 1rem;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Afficher/masquer le champ nom de l'entreprise selon le type d'utilisateur
+    $('#id_user_type').change(function() {
+        if ($(this).val() === 'fournisseur') {
+            $('#company-field').show();
+        } else {
+            $('#company-field').hide();
+        }
+    });
+    
+    // Vérifier la valeur initiale
+    if ($('#id_user_type').val() === 'fournisseur') {
+        $('#company-field').show();
+    }
+});
+</script>
+{% endblock %}

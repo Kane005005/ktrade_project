@@ -1,0 +1,480 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Connexion - Ktrade Connect{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <img src="{% static 'images/logo.svg' %}" alt="Ktrade Connect" class="auth-logo">
+            <h1>Bienvenue sur Ktrade Connect</h1>
+            <p>Connectez-vous pour accéder à votre espace</p>
+        </div>
+        
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <!-- Formulaire de connexion personnalisé -->
+        <form method="POST" action="{% url 'custom-login' %}" class="auth-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="login">
+                    <i class="fas fa-envelope"></i>
+                    Email
+                </label>
+                <input type="email" 
+                       name="login" 
+                       id="login" 
+                       class="form-control" 
+                       placeholder="votre@email.com" 
+                       required 
+                       autofocus>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-lock"></i>
+                    Mot de passe
+                </label>
+                <div class="password-input">
+                    <input type="password" 
+                           name="password" 
+                           id="password" 
+                           class="form-control" 
+                           placeholder="••••••••" 
+                           required>
+                    <button type="button" class="password-toggle" onclick="togglePassword()">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-group remember-forgot">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="remember" id="remember">
+                    <span>Se souvenir de moi</span>
+                </label>
+                
+
+            </div>
+            
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-sign-in-alt"></i>
+                Se connecter
+            </button>
+        </form>
+        
+        <!-- Séparateur -->
+        <div class="auth-divider">
+            <span>ou</span>
+        </div>
+        
+        <!-- Connexion sociale -->
+        <div class="social-login">
+            <a href="{% provider_login_url 'google' %}" class="btn-google">
+                <i class="fab fa-google"></i>
+                Continuer avec Google
+            </a>
+        </div>
+        
+        <!-- Lien d'inscription -->
+        <div class="auth-footer">
+            <p>Pas encore de compte ?</p>
+            <a href="{% url 'register' %}" class="btn-register-link">
+                Créer un compte gratuitement
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Bandeau d'information -->
+    <div class="auth-info">
+        <div class="info-item">
+            <i class="fas fa-globe-africa"></i>
+            <h3>Commerce International</h3>
+            <p>Connectez-vous avec des partenaires du monde entier</p>
+        </div>
+        
+        <div class="info-item">
+            <i class="fas fa-shield-alt"></i>
+            <h3>Transactions Sécurisées</h3>
+            <p>Vos données et transactions sont protégées</p>
+        </div>
+        
+        <div class="info-item">
+            <i class="fas fa-headset"></i>
+            <h3>Support 24/7</h3>
+            <p>Une équipe dédiée pour vous accompagner</p>
+        </div>
+        
+        <div class="info-stats">
+            <div class="stat">
+                <span class="stat-number">+5000</span>
+                <span class="stat-label">Utilisateurs</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">+10000</span>
+                <span class="stat-label">Produits</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">50+</span>
+                <span class="stat-label">Pays</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePassword() {
+    const passwordInput = document.getElementById('password');
+    const toggleBtn = document.querySelector('.password-toggle i');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleBtn.classList.remove('fa-eye');
+        toggleBtn.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleBtn.classList.remove('fa-eye-slash');
+        toggleBtn.classList.add('fa-eye');
+    }
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        min-height: calc(100vh - 200px);
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    
+    .auth-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2.5rem;
+        box-shadow: var(--shadow);
+    }
+    
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .auth-logo {
+        height: 60px;
+        margin-bottom: 1rem;
+    }
+    
+    .auth-header h1 {
+        font-size: 2rem;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+    
+    .auth-header p {
+        color: var(--text-light);
+    }
+    
+    .alert {
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .alert-success {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #10b981;
+    }
+    
+    .alert-error {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #ef4444;
+    }
+    
+    .alert-info {
+        background: #dbeafe;
+        color: #1e40af;
+        border: 1px solid #3b82f6;
+    }
+    
+    .auth-form .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .auth-form label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text-dark);
+    }
+    
+    .auth-form label i {
+        color: var(--primary-color);
+        width: 20px;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    .password-input {
+        position: relative;
+    }
+    
+    .password-toggle {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text-light);
+    }
+    
+    .password-toggle:hover {
+        color: var(--primary-color);
+    }
+    
+    .remember-forgot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+    }
+    
+    .checkbox-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+    
+    .forgot-password {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .forgot-password:hover {
+        text-decoration: underline;
+    }
+    
+    .btn-submit {
+        width: 100%;
+        padding: 1rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: background 0.3s ease;
+    }
+    
+    .btn-submit:hover {
+        background: var(--secondary-color);
+    }
+    
+    .auth-divider {
+        text-align: center;
+        margin: 2rem 0;
+        position: relative;
+    }
+    
+    .auth-divider::before,
+    .auth-divider::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: calc(50% - 30px);
+        height: 1px;
+        background: #e5e7eb;
+    }
+    
+    .auth-divider::before {
+        left: 0;
+    }
+    
+    .auth-divider::after {
+        right: 0;
+    }
+    
+    .auth-divider span {
+        background: white;
+        padding: 0 1rem;
+        color: var(--text-light);
+    }
+    
+    .btn-google {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 1rem;
+        background: white;
+        color: var(--text-dark);
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-weight: 500;
+        transition: background 0.3s ease;
+    }
+    
+    .btn-google:hover {
+        background: var(--background-light);
+    }
+    
+    .btn-google i {
+        color: #ea4335;
+    }
+    
+    .auth-footer {
+        margin-top: 2rem;
+        text-align: center;
+        padding-top: 2rem;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .auth-footer p {
+        color: var(--text-light);
+        margin-bottom: 0.5rem;
+    }
+    
+    .btn-register-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        transition: background 0.3s ease;
+    }
+    
+    .btn-register-link:hover {
+        background: var(--background-light);
+    }
+    
+    .auth-info {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 1rem;
+        padding: 2rem;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+    
+    .info-item {
+        text-align: center;
+    }
+    
+    .info-item i {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .info-item h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .info-item p {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        line-height: 1.5;
+    }
+    
+    .info-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .stat {
+        text-align: center;
+    }
+    
+    .stat-number {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+        opacity: 0.9;
+    }
+    
+    @media (max-width: 768px) {
+        .auth-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .auth-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        
+        .auth-card {
+            padding: 1.5rem;
+        }
+        
+        .info-stats {
+            grid-column: 1 / -1;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .auth-info {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
