@@ -1,367 +1,1707 @@
-{% extends 'base.html' %}
 {% load static %}
-{% load socialaccount %}
+{% load socialaccount %} 
 
-{% block title %}Inscription - Ktrade Connect{% endblock %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Inscription - Ktrade Connect</title>
 
-{% block content %}
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <h1>Créer un compte</h1>
-            <p>Rejoignez la communauté Ktrade Connect</p>
-        </div>
-        
-        <!-- Social Login -->
-        {% load socialaccount %}
-        <a href="{% provider_login_url 'google' %}" class="btn-google">
-            <i class="fab fa-google"></i>
-            Continuer avec Google
-        </a>
-        
-        <div class="auth-divider">
-            <span>ou</span>
-        </div>
-        
-        <!-- Formulaire d'inscription -->
-        <form method="POST" class="auth-form">
-            {% csrf_token %}
-            
-            {% if form.non_field_errors %}
-                <div class="form-errors">
-                    {% for error in form.non_field_errors %}
-                        <p class="error">{{ error }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            
-            <!-- Informations de base -->
-            <div class="form-section">
-                <h3>Informations de connexion</h3>
-                
-                <div class="form-group">
-                    <label for="{{ form.username.id_for_label }}">Nom d'utilisateur *</label>
-                    {{ form.username }}
-                    {% if form.username.errors %}
-                        <p class="error">{{ form.username.errors.0 }}</p>
-                    {% endif %}
-                </div>
-                
-                <div class="form-group">
-                    <label for="{{ form.email.id_for_label }}">Email *</label>
-                    {{ form.email }}
-                    {% if form.email.errors %}
-                        <p class="error">{{ form.email.errors.0 }}</p>
-                    {% endif %}
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="{{ form.password1.id_for_label }}">Mot de passe *</label>
-                        {{ form.password1 }}
-                        {% if form.password1.errors %}
-                            <p class="error">{{ form.password1.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.password2.id_for_label }}">Confirmer le mot de passe *</label>
-                        {{ form.password2 }}
-                        {% if form.password2.errors %}
-                            <p class="error">{{ form.password2.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Type d'utilisateur -->
-            <div class="form-section">
-                <h3>Type de compte</h3>
-                
-                <div class="form-group">
-                    <label for="{{ form.user_type.id_for_label }}">Vous êtes *</label>
-                    {{ form.user_type }}
-                    {% if form.user_type.errors %}
-                        <p class="error">{{ form.user_type.errors.0 }}</p>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- Informations personnelles -->
-            <div class="form-section">
-                <h3>Informations personnelles</h3>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="{{ form.phone.id_for_label }}">Téléphone</label>
-                        {{ form.phone }}
-                        {% if form.phone.errors %}
-                            <p class="error">{{ form.phone.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.country.id_for_label }}">Pays *</label>
-                        {{ form.country }}
-                        {% if form.country.errors %}
-                            <p class="error">{{ form.country.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="{{ form.city.id_for_label }}">Ville *</label>
-                        {{ form.city }}
-                        {% if form.city.errors %}
-                            <p class="error">{{ form.city.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group" id="company-field" style="display: none;">
-                        <label for="{{ form.company_name.id_for_label }}">Nom de l'entreprise</label>
-                        {{ form.company_name }}
-                        {% if form.company_name.errors %}
-                            <p class="error">{{ form.company_name.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="{{ form.bio.id_for_label }}">Bio / Description</label>
-                    {{ form.bio }}
-                    {% if form.bio.errors %}
-                        <p class="error">{{ form.bio.errors.0 }}</p>
-                    {% endif %}
-                    <p class="help-text">Une brève description de votre activité</p>
-                </div>
-            </div>
-            
-            <div class="form-footer">
-                <button type="submit" class="btn-submit">Créer mon compte</button>
-                
-                <p class="auth-redirect">
-                    Déjà un compte ? 
-                    <!-- CORRECTION ICI : account_login -> custom-login -->
-                    <a href="{% url 'custom-login' %}">Se connecter</a>
-                </p>
-            </div>
-        </form>
-    </div>
-</div>
-{% endblock %}
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-{% block extra_css %}
-<style>
-    .auth-container {
-        min-height: calc(100vh - 200px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-    }
-    
-    .auth-card {
-        max-width: 600px;
-        width: 100%;
-        background: white;
-        border-radius: 0.5rem;
-        padding: 2rem;
-        box-shadow: var(--shadow);
-    }
-    
-    .auth-header {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    
-    .auth-header h1 {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .auth-header p {
-        color: var(--text-light);
-    }
-    
-    .social-login {
-        margin-bottom: 1.5rem;
-    }
-    
-    .btn-google {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        width: 100%;
-        padding: 0.75rem;
-        background: white;
-        color: var(--text-dark);
-        border: 1px solid #e5e7eb;
-        border-radius: 0.5rem;
-        text-decoration: none;
-        font-weight: 500;
-        transition: background 0.3s ease;
-    }
-    
-    .btn-google:hover {
-        background: var(--background-light);
-    }
-    
-    .auth-divider {
-        text-align: center;
-        margin: 1.5rem 0;
-        position: relative;
-    }
-    
-    .auth-divider::before,
-    .auth-divider::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        width: calc(50% - 30px);
-        height: 1px;
-        background: #e5e7eb;
-    }
-    
-    .auth-divider::before {
-        left: 0;
-    }
-    
-    .auth-divider::after {
-        right: 0;
-    }
-    
-    .auth-divider span {
-        background: white;
-        padding: 0 1rem;
-        color: var(--text-light);
-    }
-    
-    .form-section {
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb;
-    }
-    
-    .form-section h3 {
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-        color: var(--primary-color);
-    }
-    
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-    
-    .form-group {
-        margin-bottom: 1rem;
-    }
-    
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        font-size: 0.95rem;
-    }
-    
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.5rem;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-    }
-    
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    }
-    
-    .error {
-        color: #ef4444;
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-    }
-    
-    .help-text {
-        color: var(--text-light);
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-    }
-    
-    .form-errors {
-        background: #fee2e2;
-        border: 1px solid #ef4444;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .form-footer {
-        text-align: center;
-        margin-top: 2rem;
-    }
-    
-    .btn-submit {
-        width: 100%;
-        padding: 1rem;
-        background: var(--primary-color);
-        color: white;
-        border: none;
-        border-radius: 0.5rem;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        margin-bottom: 1rem;
-    }
-    
-    .auth-redirect {
-        color: var(--text-light);
-    }
-    
-    .auth-redirect a {
-        color: var(--primary-color);
-        text-decoration: none;
-        font-weight: 600;
-    }
-    
-    @media (max-width: 768px) {
-        .auth-container {
-            padding: 1rem;
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
+
+        :root {
+            /* Mode sombre (par défaut) */
+            --gold: #C8962E;
+            --gold-light: #E8C36A;
+            --gold-dark: #A07520;
+            --gold-glow: rgba(200, 150, 46, 0.15);
+            --gold-glow-strong: rgba(200, 150, 46, 0.3);
+            --bg: #0A0A0F;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.06);
+            --bg-input: rgba(255, 255, 255, 0.05);
+            --bg-input-focus: rgba(255, 255, 255, 0.08);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-focus: rgba(200, 150, 46, 0.5);
+            --text: #F5F5F5;
+            --text-secondary: #8A8A9A;
+            --text-muted: #5A5A6A;
+            --danger: #EF4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --success: #22C55E;
+            --success-bg: rgba(34, 197, 94, 0.1);
+            --info-bg: rgba(200, 150, 46, 0.1);
+            --radius: 14px;
+            --radius-sm: 10px;
+            --radius-xs: 8px;
+            --shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.5);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --nav-bg: rgba(10, 10, 15, 0.6);
+            --right-panel-bg: rgba(15, 15, 22, 0.8);
+            --body-bg: var(--bg);
+            --text-nav: var(--text);
+        }
+
+        /* Mode clair */
+        @media (prefers-color-scheme: light) {
+            :root {
+                --gold: #B8860B;
+                --gold-light: #DAA520;
+                --gold-dark: #8B6914;
+                --gold-glow: rgba(184, 134, 11, 0.1);
+                --gold-glow-strong: rgba(184, 134, 11, 0.2);
+                --bg: #F8F9FA;
+                --bg-card: rgba(0, 0, 0, 0.02);
+                --bg-card-hover: rgba(0, 0, 0, 0.04);
+                --bg-input: rgba(0, 0, 0, 0.03);
+                --bg-input-focus: rgba(0, 0, 0, 0.05);
+                --border: rgba(0, 0, 0, 0.1);
+                --border-focus: rgba(184, 134, 11, 0.5);
+                --text: #1A1A2E;
+                --text-secondary: #4A4A5A;
+                --text-muted: #6B6B7B;
+                --danger: #DC2626;
+                --danger-bg: rgba(220, 38, 38, 0.08);
+                --success: #16A34A;
+                --success-bg: rgba(22, 163, 74, 0.08);
+                --info-bg: rgba(184, 134, 11, 0.08);
+                --shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.1);
+                --nav-bg: rgba(248, 249, 250, 0.8);
+                --right-panel-bg: rgba(255, 255, 255, 0.9);
+                --body-bg: var(--bg);
+                --text-nav: var(--text);
+            }
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--body-bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+            transition: background-color var(--transition), color var(--transition);
+        }
+
+        /* ======== AMBIENT BACKGROUND ======== */
+        .ambient {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            transition: opacity var(--transition);
+        }
+
+        @media (prefers-color-scheme: light) {
+            .ambient {
+                opacity: 0.6;
+            }
+            
+            .ambient-orb {
+                opacity: 0.2;
+            }
+            
+            .ambient-orb:nth-child(1) {
+                background: radial-gradient(circle, rgba(184, 134, 11, 0.15), transparent 70%);
+            }
+            
+            .ambient-orb:nth-child(2) {
+                background: radial-gradient(circle, rgba(184, 134, 11, 0.08), transparent 70%);
+            }
+            
+            .ambient-orb:nth-child(3) {
+                background: radial-gradient(circle, rgba(139, 105, 20, 0.1), transparent 70%);
+            }
+            
+            .ambient-grid {
+                background-image:
+                    linear-gradient(rgba(184, 134, 11, 0.02) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(184, 134, 11, 0.02) 1px, transparent 1px);
+            }
+        }
+
+        .ambient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.4;
+            animation: orbFloat 20s ease-in-out infinite;
+        }
+
+        .ambient-orb:nth-child(1) {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(200, 150, 46, 0.2), transparent 70%);
+            top: -15%;
+            right: -10%;
+            animation-delay: 0s;
+        }
+
+        .ambient-orb:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(200, 150, 46, 0.1), transparent 70%);
+            bottom: -10%;
+            left: -5%;
+            animation-delay: -7s;
+        }
+
+        .ambient-orb:nth-child(3) {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(160, 117, 32, 0.15), transparent 70%);
+            top: 50%;
+            left: 40%;
+            animation-delay: -14s;
+        }
+
+        .ambient-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(200, 150, 46, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(200, 150, 46, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 100%);
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -20px) scale(1.05); }
+            50% { transform: translate(-20px, 30px) scale(0.95); }
+            75% { transform: translate(15px, 15px) scale(1.02); }
+        }
+
+        /* ======== NAVBAR ======== */
+        .nav {
+            position: relative;
+            z-index: 50;
+            padding: 1.25rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(20px);
+            background: var(--nav-bg);
+            border-bottom: 1px solid var(--border);
+            transition: background-color var(--transition), border-color var(--transition);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .nav-logo img {
+            height: 44px;
+            width: auto;
+            filter: drop-shadow(0 0 12px rgba(200, 150, 46, 0.3));
+        }
+
+        .nav-logo-text {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+
+        .nav-logo-text span {
+            color: var(--gold);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color var(--transition);
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--gold-light);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gold);
+            border-radius: 1px;
+            transition: width var(--transition);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .btn-nav-ghost {
+            padding: 0.5rem 1.25rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xs);
+            background: transparent;
+            color: var(--text);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition);
+            text-decoration: none;
+            font-family: inherit;
+        }
+
+        .btn-nav-ghost:hover {
+            border-color: var(--gold);
+            color: var(--gold-light);
+            background: var(--gold-glow);
+        }
+
+        /* ======== MAIN LAYOUT ======== */
+        .register-page {
+            position: relative;
+            z-index: 10;
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 480px;
+            min-height: 0;
+        }
+
+        /* ======== LEFT PANEL ======== */
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem 5rem;
+            position: relative;
+        }
+
+        .left-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            background: var(--gold-glow);
+            border: 1px solid rgba(200, 150, 46, 0.2);
+            border-radius: 100px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--gold-light);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 2rem;
+            width: fit-content;
+            transition: background-color var(--transition), border-color var(--transition), color var(--transition);
+        }
+
+        .left-badge i {
+            font-size: 0.7rem;
+        }
+
+        .left-title {
+            font-size: clamp(2.5rem, 4vw, 3.5rem);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+
+        .left-title .highlight {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .left-desc {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin-bottom: 3rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 1.5rem;
+            transition: all var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            opacity: 0;
+            transition: opacity var(--transition);
+        }
+
+        .feature-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(200, 150, 46, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-xs);
+            background: var(--gold-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            color: var(--gold);
+            font-size: 1rem;
+        }
+
+        .feature-card h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: var(--text);
+        }
+
+        .feature-card p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* ======== STATS BAR ======== */
+        .stats-bar {
+            position: absolute;
+            bottom: 3rem;
+            left: 5rem;
+            right: 5rem;
+            display: flex;
+            gap: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            transition: border-color var(--transition);
+        }
+
+        .stat-item {
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--gold-light);
+            letter-spacing: -0.02em;
+        }
+
+        .stat-label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ======== RIGHT PANEL (FORM) ======== */
+        .right-panel {
+            background: var(--right-panel-bg);
+            backdrop-filter: blur(40px);
+            border-left: 1px solid var(--border);
+            padding: 3rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow-y: auto;
+            transition: background-color var(--transition), border-color var(--transition);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-header .mobile-logo {
+            display: none;
+            height: 48px;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 12px rgba(200, 150, 46, 0.3));
+        }
+
+        .form-header h2 {
+            font-size: 1.65rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .form-header p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Messages */
+        .alert {
+            padding: 0.85rem 1rem;
+            border-radius: var(--radius-xs);
+            margin-bottom: 1.25rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            line-height: 1.5;
+            animation: slideDown 0.3s ease;
+        }
+
+        .alert i {
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .alert-success {
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .alert-error {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .alert-info {
+            background: var(--info-bg);
+            color: var(--gold-light);
+            border: 1px solid rgba(200, 150, 46, 0.2);
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* User Type Selector */
+        .type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .type-option {
+            position: relative;
+        }
+
+        .type-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .type-option label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 1.25rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-input);
+            cursor: pointer;
+            transition: all var(--transition);
+            text-align: center;
+        }
+
+        .type-option label i {
+            font-size: 1.4rem;
+            color: var(--text-muted);
+            transition: all var(--transition);
+        }
+
+        .type-option label span {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: color var(--transition);
+        }
+
+        .type-option label small {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            transition: color var(--transition);
+        }
+
+        .type-option input:checked + label {
+            border-color: var(--gold);
+            background: var(--gold-glow);
+            box-shadow: 0 0 20px rgba(200, 150, 46, 0.1);
+        }
+
+        .type-option input:checked + label i {
+            color: var(--gold);
+        }
+
+        .type-option input:checked + label span {
+            color: var(--gold-light);
+        }
+
+        .type-option input:checked + label small {
+            color: var(--gold-dark);
+        }
+
+        .type-option label:hover {
+            border-color: rgba(200, 150, 46, 0.3);
+            background: var(--bg-input-focus);
+        }
+
+        /* Form Fields */
         .form-row {
-            grid-template-columns: 1fr;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
         }
-    }
-</style>
-{% endblock %}
 
-{% block extra_js %}
-<script>
-$(document).ready(function() {
-    // Afficher/masquer le champ nom de l'entreprise selon le type d'utilisateur
-    $('#id_user_type').change(function() {
-        if ($(this).val() === 'fournisseur') {
-            $('#company-field').show();
-        } else {
-            $('#company-field').hide();
+        .form-group {
+            margin-bottom: 1.25rem;
+            position: relative;
         }
-    });
-    
-    // Vérifier la valeur initiale
-    if ($('#id_user_type').val() === 'fournisseur') {
-        $('#company-field').show();
-    }
-});
-</script>
-{% endblock %}
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group label i {
+            font-size: 0.75rem;
+            color: var(--gold);
+            opacity: 0.7;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input,
+        .input-wrapper select,
+        .input-wrapper textarea {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.75rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xs);
+            color: var(--text);
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: all var(--transition);
+            appearance: none;
+        }
+
+        .input-wrapper select {
+            padding-right: 2.5rem;
+            cursor: pointer;
+        }
+
+        .input-wrapper textarea {
+            padding-left: 1rem;
+            resize: vertical;
+        }
+
+        .input-wrapper .input-icon {
+            position: absolute;
+            left: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            transition: color var(--transition);
+            pointer-events: none;
+        }
+
+        .input-wrapper .select-arrow {
+            position: absolute;
+            right: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            pointer-events: none;
+        }
+
+        .input-wrapper input::placeholder,
+        .input-wrapper textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .input-wrapper input:focus,
+        .input-wrapper select:focus,
+        .input-wrapper textarea:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            background: var(--bg-input-focus);
+            box-shadow: 0 0 0 3px rgba(200, 150, 46, 0.08);
+        }
+
+        .input-wrapper input:focus + .input-icon,
+        .input-wrapper input:focus ~ .input-icon {
+            color: var(--gold);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 3rem !important;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.25rem;
+            font-size: 0.85rem;
+            transition: color var(--transition);
+        }
+
+        .toggle-password:hover {
+            color: var(--gold);
+        }
+
+        /* Password Strength */
+        .password-strength {
+            margin-top: 0.6rem;
+        }
+
+        .strength-bar {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 0.4rem;
+        }
+
+        .strength-segment {
+            flex: 1;
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            transition: background var(--transition);
+        }
+
+        .strength-segment.active.weak { background: var(--danger); }
+        .strength-segment.active.medium { background: #F59E0B; }
+        .strength-segment.active.strong { background: var(--success); }
+
+        .strength-text {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            transition: color var(--transition);
+        }
+
+        /* Terms */
+        .terms-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .terms-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            cursor: pointer;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .custom-checkbox {
+            position: relative;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .custom-checkbox input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .custom-checkbox .checkmark {
+            width: 18px;
+            height: 18px;
+            border: 1.5px solid var(--border);
+            border-radius: 5px;
+            background: var(--bg-input);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition);
+        }
+
+        .custom-checkbox .checkmark i {
+            font-size: 0.6rem;
+            color: var(--bg);
+            opacity: 0;
+            transform: scale(0);
+            transition: all var(--transition);
+        }
+
+        .custom-checkbox input:checked + .checkmark {
+            background: var(--gold);
+            border-color: var(--gold);
+        }
+
+        .custom-checkbox input:checked + .checkmark i {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .terms-label a {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color var(--transition);
+        }
+
+        .terms-label a:hover {
+            color: var(--gold-light);
+            text-decoration: underline;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 0.95rem 1.5rem;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: #FFFFFF;
+            border: none;
+            border-radius: var(--radius-xs);
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            transition: all var(--transition);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: -0.01em;
+        }
+
+        @media (prefers-color-scheme: light) {
+            .btn-submit {
+                color: #FFFFFF;
+            }
+        }
+
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            opacity: 0;
+            transition: opacity var(--transition);
+        }
+
+        .btn-submit:hover::before {
+            opacity: 1;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(200, 150, 46, 0.3);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit span,
+        .btn-submit i {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-submit .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #FFFFFF;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        .btn-submit.loading .spinner {
+            display: block;
+        }
+
+        .btn-submit.loading .btn-text,
+        .btn-submit.loading .btn-icon {
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+            transition: background var(--transition);
+        }
+
+        .divider span {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        /* Social Button */
+        .btn-google {
+            width: 100%;
+            padding: 0.85rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xs);
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            transition: all var(--transition);
+            text-decoration: none;
+        }
+
+        .btn-google:hover {
+            background: var(--bg-input-focus);
+            border-color: var(--border-focus);
+            transform: translateY(-1px);
+        }
+
+        .btn-google .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Footer link */
+        .form-footer {
+            text-align: center;
+            margin-top: 1.75rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .form-footer a {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color var(--transition);
+        }
+
+        .form-footer a:hover {
+            color: var(--gold-light);
+            text-decoration: underline;
+        }
+
+        /* Field Errors */
+        .field-error {
+            font-size: 0.75rem;
+            color: var(--danger);
+            margin-top: 0.35rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            animation: slideDown 0.2s ease;
+        }
+
+        .field-error i {
+            font-size: 0.65rem;
+        }
+
+        .input-wrapper.has-error input,
+        .input-wrapper.has-error select,
+        .input-wrapper.has-error textarea {
+            border-color: rgba(239, 68, 68, 0.5);
+            background: var(--danger-bg);
+        }
+
+        /* ======== TOAST ======== */
+        .toast-container {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .toast {
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-xs);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            min-width: 300px;
+            box-shadow: var(--shadow);
+            animation: toastIn 0.3s ease, toastOut 0.3s ease 4.7s forwards;
+            backdrop-filter: blur(20px);
+        }
+
+        .toast-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #FCA5A5;
+        }
+
+        .toast-success {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #86EFAC;
+        }
+
+        @media (prefers-color-scheme: light) {
+            .toast-error {
+                background: rgba(220, 38, 38, 0.1);
+                border: 1px solid rgba(220, 38, 38, 0.3);
+                color: #DC2626;
+            }
+
+            .toast-success {
+                background: rgba(22, 163, 74, 0.1);
+                border: 1px solid rgba(22, 163, 74, 0.3);
+                color: #16A34A;
+            }
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(40px); }
+        }
+
+        /* ======== RESPONSIVE ======== */
+        @media (max-width: 1024px) {
+            .register-page {
+                grid-template-columns: 1fr;
+            }
+
+            .left-panel {
+                display: none;
+            }
+
+            .right-panel {
+                border-left: none;
+                min-height: 100vh;
+            }
+
+            .form-header .mobile-logo {
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .nav {
+                padding: 1rem 1.25rem;
+            }
+
+            .nav-links a:not(.btn-nav-ghost) {
+                display: none;
+            }
+
+            .right-panel {
+                padding: 2rem 1.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .type-selector {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .toast {
+                min-width: auto;
+                margin-left: 1rem;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .type-selector {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ======== SCROLLBAR ======== */
+        .right-panel::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .right-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .right-panel::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        /* ======== REDUCED MOTION ======== */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Background -->
+    <div class="ambient" aria-hidden="true">
+        <div class="ambient-orb"></div>
+        <div class="ambient-orb"></div>
+        <div class="ambient-orb"></div>
+        <div class="ambient-grid"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="nav">
+        <a href="/" class="nav-logo">
+            <img src="https://z-cdn-media.chatglm.cn/files/e22e85cc-ae49-4c84-b424-50563a171469.png?auth_key=1878494067-cf1aaf8c969d44ebb1959bdfaacec9f7-0-25e6708f29fb96ae5c39f931690c0c23" alt="Ktrade Connect">
+            <span class="nav-logo-text">Ktrade <span>Connect</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Accueil</a>
+            <a href="{% url 'product-list' %}">Produits</a>
+            <a href="{% url 'request-list' %}">Demandes</a>
+            <a href="{% url 'custom-login' %}" class="btn-nav-ghost">
+                <i class="fas fa-sign-in-alt" style="margin-right:4px;font-size:0.8rem;"></i> Connexion
+            </a>
+        </div>
+    </nav>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Main Content -->
+    <div class="register-page">
+
+        <!-- Left Panel -->
+        <section class="left-panel">
+            <div class="left-badge">
+                <i class="fas fa-bolt"></i>
+                Rejoignez la communauté
+            </div>
+
+            <h1 class="left-title">
+                Connectez-vous au<br>
+                <span class="highlight">commerce mondial</span>
+            </h1>
+
+            <p class="left-desc">
+                Créez votre compte en quelques secondes et accédez à un réseau de plus de 5 000 fournisseurs et acheteurs dans 50+ pays.
+            </p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-globe-africa"></i>
+                    </div>
+                    <h4>Portée mondiale</h4>
+                    <p>Connectez-vous avec des partenaires sur tous les continents</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <h4>Sécurisé</h4>
+                    <p>Transactions et données protégées par chiffrement</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h4>Messagerie</h4>
+                    <p>Communiquez directement avec les fournisseurs</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h4>Rapide</h4>
+                    <p>Inscription en 30 secondes, sans friction</p>
+                </div>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-number">5 000+</div>
+                    <div class="stat-label">Utilisateurs</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">10 000+</div>
+                    <div class="stat-label">Produits</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Pays</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">99.9%</div>
+                    <div class="stat-label">Uptime</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Panel (Form) -->
+        <section class="right-panel">
+            <div class="form-header">
+                <img src="https://z-cdn-media.chatglm.cn/files/e22e85cc-ae49-4c84-b424-50563a171469.png?auth_key=1878494067-cf1aaf8c969d44ebb1959bdfaacec9f7-0-25e6708f29fb96ae5c39f931690c0c23" alt="Ktrade Connect" class="mobile-logo">
+                <h2>Créer un compte</h2>
+                <p>Commencez gratuitement en quelques secondes</p>
+            </div>
+
+            <!-- Messages Django -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Registration Form -->
+            <form method="POST" action="{% url 'register' %}" id="registerForm" novalidate>
+                {% csrf_token %}
+
+                <!-- Champ caché pour user_type -->
+                <input type="hidden" name="user_type" id="user_type_hidden" value="vendeur">
+
+                <!-- Type Selector -->
+                <div class="type-selector">
+                    <div class="type-option">
+                        <input type="radio" name="user_type_radio" id="type-buyer" value="vendeur" checked>
+                        <label for="type-buyer">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span>Acheteur</span>
+                            <small>Je cherche des produits</small>
+                        </label>
+                    </div>
+                    <div class="type-option">
+                        <input type="radio" name="user_type_radio" id="type-supplier" value="fournisseur">
+                        <label for="type-supplier">
+                            <i class="fas fa-store"></i>
+                            <span>Fournisseur</span>
+                            <small>Je vends des produits</small>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Username -->
+                <div class="form-group">
+                    <label for="username"><i class="fas fa-user-tag"></i> Nom d'utilisateur *</label>
+                    <div class="input-wrapper" id="username_wrapper">
+                        <input type="text" name="username" id="username" placeholder="Choisissez un nom d'utilisateur" required autocomplete="username">
+                        <i class="fas fa-user-tag input-icon"></i>
+                    </div>
+                    <div class="field-error" id="username_error" style="display:none;"></div>
+                </div>
+
+                <!-- Name Row -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_name"><i class="fas fa-user"></i> Prénom</label>
+                        <div class="input-wrapper" id="first_name_wrapper">
+                            <input type="text" name="first_name" id="first_name" placeholder="Jean" autocomplete="given-name">
+                            <i class="fas fa-user input-icon"></i>
+                        </div>
+                        <div class="field-error" id="first_name_error" style="display:none;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name"><i class="fas fa-user"></i> Nom</label>
+                        <div class="input-wrapper" id="last_name_wrapper">
+                            <input type="text" name="last_name" id="last_name" placeholder="Dupont" autocomplete="family-name">
+                            <i class="fas fa-user input-icon"></i>
+                        </div>
+                        <div class="field-error" id="last_name_error" style="display:none;"></div>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email"><i class="fas fa-envelope"></i> Email *</label>
+                    <div class="input-wrapper" id="email_wrapper">
+                        <input type="email" name="email" id="email" placeholder="jean@exemple.com" required autocomplete="email">
+                        <i class="fas fa-envelope input-icon"></i>
+                    </div>
+                    <div class="field-error" id="email_error" style="display:none;"></div>
+                </div>
+
+                <!-- Company -->
+                <div class="form-group" id="company_group">
+                    <label for="company_name"><i class="fas fa-building"></i> Entreprise <span style="color:var(--text-muted);font-weight:400;">(optionnel)</span></label>
+                    <div class="input-wrapper" id="company_name_wrapper">
+                        <input type="text" name="company_name" id="company_name" placeholder="Nom de votre entreprise" autocomplete="organization">
+                        <i class="fas fa-building input-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Country -->
+                <div class="form-group">
+                    <label for="country"><i class="fas fa-globe"></i> Pays *</label>
+                    <div class="input-wrapper" id="country_wrapper">
+                        <select name="country" id="country" required>
+                            <option value="" disabled selected>Sélectionnez votre pays</option>
+                            <option value="CI">Côte d'Ivoire</option>
+                            <option value="SN">Sénégal</option>
+                            <option value="ML">Mali</option>
+                            <option value="BF">Burkina Faso</option>
+                            <option value="CM">Cameroun</option>
+                            <option value="GA">Gabon</option>
+                            <option value="CG">Congo</option>
+                            <option value="NE">Niger</option>
+                            <option value="TG">Togo</option>
+                            <option value="BJ">Bénin</option>
+                            <option value="GN">Guinée</option>
+                            <option value="TD">Tchad</option>
+                            <option value="CF">Centrafrique</option>
+                            <option value="CD">RD Congo</option>
+                            <option value="MG">Madagascar</option>
+                            <option value="MA">Maroc</option>
+                            <option value="TN">Tunisie</option>
+                            <option value="DZ">Algérie</option>
+                            <option value="FR">France</option>
+                            <option value="BE">Belgique</option>
+                            <option value="CH">Suisse</option>
+                            <option value="CA">Canada</option>
+                            <option value="US">États-Unis</option>
+                            <option value="CN">Chine</option>
+                            <option value="IN">Inde</option>
+                            <option value="TR">Turquie</option>
+                            <option value="AE">Émirats Arabes Unis</option>
+                            <option value="SA">Arabie Saoudite</option>
+                            <option value="OTHER">Autre</option>
+                        </select>
+                        <i class="fas fa-globe input-icon"></i>
+                        <i class="fas fa-chevron-down select-arrow"></i>
+                    </div>
+                    <div class="field-error" id="country_error" style="display:none;"></div>
+                </div>
+
+                <!-- City -->
+                <div class="form-group">
+                    <label for="city"><i class="fas fa-city"></i> Ville *</label>
+                    <div class="input-wrapper" id="city_wrapper">
+                        <input type="text" name="city" id="city" placeholder="Votre ville" required autocomplete="address-level2">
+                        <i class="fas fa-city input-icon"></i>
+                    </div>
+                    <div class="field-error" id="city_error" style="display:none;"></div>
+                </div>
+
+                <!-- Phone -->
+                <div class="form-group">
+                    <label for="phone"><i class="fas fa-phone"></i> Téléphone <span style="color:var(--text-muted);font-weight:400;">(optionnel)</span></label>
+                    <div class="input-wrapper" id="phone_wrapper">
+                        <input type="tel" name="phone" id="phone" placeholder="+223 XX XX XX XX" autocomplete="tel">
+                        <i class="fas fa-phone input-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Bio -->
+                <div class="form-group">
+                    <label for="bio"><i class="fas fa-pen"></i> Bio <span style="color:var(--text-muted);font-weight:400;">(optionnel)</span></label>
+                    <div class="input-wrapper" id="bio_wrapper">
+                        <textarea name="bio" id="bio" rows="3" placeholder="Décrivez brièvement votre activité..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Password Row -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password1"><i class="fas fa-lock"></i> Mot de passe *</label>
+                        <div class="input-wrapper password-wrapper" id="password1_wrapper">
+                            <input type="password" name="password1" id="password1" placeholder="Min. 8 caractères" required autocomplete="new-password">
+                            <i class="fas fa-lock input-icon"></i>
+                            <button type="button" class="toggle-password" data-target="password1" aria-label="Afficher le mot de passe">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength" id="passwordStrength">
+                            <div class="strength-bar">
+                                <div class="strength-segment" id="seg1"></div>
+                                <div class="strength-segment" id="seg2"></div>
+                                <div class="strength-segment" id="seg3"></div>
+                                <div class="strength-segment" id="seg4"></div>
+                            </div>
+                            <span class="strength-text" id="strengthText"></span>
+                        </div>
+                        <div class="field-error" id="password1_error" style="display:none;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password2"><i class="fas fa-lock"></i> Confirmer *</label>
+                        <div class="input-wrapper password-wrapper" id="password2_wrapper">
+                            <input type="password" name="password2" id="password2" placeholder="Répétez le mot de passe" required autocomplete="new-password">
+                            <i class="fas fa-lock input-icon"></i>
+                            <button type="button" class="toggle-password" data-target="password2" aria-label="Afficher le mot de passe">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="field-error" id="password2_error" style="display:none;"></div>
+                    </div>
+                </div>
+
+                <!-- Terms -->
+                <div class="terms-group">
+                    <label class="terms-label">
+                        <span class="custom-checkbox">
+                            <input type="checkbox" name="terms" id="terms" required>
+                            <span class="checkmark"><i class="fas fa-check"></i></span>
+                        </span>
+                        J'accepte les <a href="/terms/" target="_blank">conditions d'utilisation</a> et la <a href="/privacy/" target="_blank">politique de confidentialité</a>
+                    </label>
+                    <div class="field-error" id="terms_error" style="display:none;"></div>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <span class="btn-text">Créer mon compte</span>
+                    <i class="fas fa-arrow-right btn-icon"></i>
+                    <div class="spinner"></div>
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="divider">
+                <span>ou s'inscrire avec</span>
+            </div>
+
+            <!-- Google -->
+            <a href="{% provider_login_url 'google' process='signup' %}" class="btn-google">
+                <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                </svg>
+                Continuer avec Google
+            </a>
+
+            <!-- Footer -->
+            <div class="form-footer">
+                Déjà un compte ? <a href="{% url 'custom-login' %}">Se connecter</a>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // ======== Synchroniser le type d'utilisateur ========
+        const hiddenUserType = document.getElementById('user_type_hidden');
+        const radioButtons = document.querySelectorAll('input[name="user_type_radio"]');
+        
+        // Initialiser avec la valeur cochée par défaut
+        const checkedRadio = document.querySelector('input[name="user_type_radio"]:checked');
+        if (hiddenUserType && checkedRadio) {
+            hiddenUserType.value = checkedRadio.value;
+        }
+        
+        // Mettre à jour lors du changement
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', function () {
+                if (hiddenUserType) {
+                    hiddenUserType.value = this.value;
+                }
+                
+                // Mettre à jour le label du champ entreprise
+                const companyGroup = document.getElementById('company_group');
+                const companyInput = document.getElementById('company_name');
+                if (this.value === 'fournisseur') {
+                    companyGroup.querySelector('label').innerHTML =
+                        '<i class="fas fa-building"></i> Entreprise <span style="color:var(--gold);font-weight:500;font-size:0.75rem;">(recommandé)</span>';
+                    companyInput.setAttribute('placeholder', 'Nom de votre société');
+                } else {
+                    companyGroup.querySelector('label').innerHTML =
+                        '<i class="fas fa-building"></i> Entreprise <span style="color:var(--text-muted);font-weight:400;">(optionnel)</span>';
+                    companyInput.setAttribute('placeholder', 'Nom de votre entreprise');
+                }
+            });
+        });
+
+        // ======== Toggle Password Visibility ========
+        document.querySelectorAll('.toggle-password').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                const icon = this.querySelector('i');
+
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+        });
+
+        // ======== Password Strength Meter ========
+        const password1Input = document.getElementById('password1');
+        const segments = [
+            document.getElementById('seg1'),
+            document.getElementById('seg2'),
+            document.getElementById('seg3'),
+            document.getElementById('seg4')
+        ];
+        const strengthText = document.getElementById('strengthText');
+
+        password1Input.addEventListener('input', function () {
+            const val = this.value;
+            let score = 0;
+
+            if (val.length >= 8) score++;
+            if (/[a-z]/.test(val) && /[A-Z]/.test(val)) score++;
+            if (/\d/.test(val)) score++;
+            if (/[^a-zA-Z0-9]/.test(val)) score++;
+
+            const levels = [
+                { label: '', cls: '' },
+                { label: 'Faible', cls: 'weak' },
+                { label: 'Moyen', cls: 'medium' },
+                { label: 'Bon', cls: 'strong' },
+                { label: 'Excellent', cls: 'strong' }
+            ];
+
+            segments.forEach((seg, i) => {
+                seg.classList.remove('active', 'weak', 'medium', 'strong');
+                if (i < score) {
+                    seg.classList.add('active', levels[score].cls);
+                }
+            });
+
+            strengthText.textContent = val.length > 0 ? levels[score].label : '';
+            strengthText.style.color =
+                score <= 1 ? 'var(--danger)' :
+                score === 2 ? '#F59E0B' :
+                'var(--success)';
+        });
+
+        // ======== Field Validation Helpers ========
+        function showFieldError(fieldId, message) {
+            const wrapper = document.getElementById(fieldId + '_wrapper');
+            const errorEl = document.getElementById(fieldId + '_error');
+            if (wrapper) wrapper.classList.add('has-error');
+            if (errorEl) {
+                errorEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + message;
+                errorEl.style.display = 'flex';
+            }
+        }
+
+        function clearFieldError(fieldId) {
+            const wrapper = document.getElementById(fieldId + '_wrapper');
+            const errorEl = document.getElementById(fieldId + '_error');
+            if (wrapper) wrapper.classList.remove('has-error');
+            if (errorEl) errorEl.style.display = 'none';
+        }
+
+        function clearAllErrors() {
+            ['username', 'first_name', 'last_name', 'email', 'country', 'city', 'password1', 'password2', 'terms'].forEach(clearFieldError);
+        }
+
+        // ======== Real-time validation on blur ========
+        document.getElementById('email').addEventListener('blur', function () {
+            clearFieldError('email');
+            if (this.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value)) {
+                showFieldError('email', 'Veuillez entrer un email valide');
+            }
+        });
+
+        document.getElementById('password2').addEventListener('blur', function () {
+            clearFieldError('password2');
+            if (this.value && this.value !== document.getElementById('password1').value) {
+                showFieldError('password2', 'Les mots de passe ne correspondent pas');
+            }
+        });
+
+        // Clear errors on input
+        ['username', 'first_name', 'last_name', 'email', 'country', 'city', 'password1', 'password2'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', () => clearFieldError(id));
+                el.addEventListener('change', () => clearFieldError(id));
+            }
+        });
+
+        // ======== Toast Notification ========
+        function showToast(message, type = 'error') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast toast-' + type;
+            const icon = type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check';
+            toast.innerHTML = '<i class="fas ' + icon + '"></i> ' + message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
+        }
+
+        // ======== Form Submission ========
+        const form = document.getElementById('registerForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', function (e) {
+            clearAllErrors();
+            let hasError = false;
+
+            const username = document.getElementById('username').value.trim();
+            const firstName = document.getElementById('first_name').value.trim();
+            const lastName = document.getElementById('last_name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const country = document.getElementById('country').value;
+            const city = document.getElementById('city').value.trim();
+            const password1 = document.getElementById('password1').value;
+            const password2 = document.getElementById('password2').value;
+            const terms = document.getElementById('terms').checked;
+
+            if (!username) {
+                showFieldError('username', "Le nom d'utilisateur est requis");
+                hasError = true;
+            }
+            if (!firstName) {
+                showFieldError('first_name', 'Le prénom est requis');
+                hasError = true;
+            }
+            if (!lastName) {
+                showFieldError('last_name', 'Le nom est requis');
+                hasError = true;
+            }
+            if (!email) {
+                showFieldError('email', "L'email est requis");
+                hasError = true;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showFieldError('email', 'Veuillez entrer un email valide');
+                hasError = true;
+            }
+            if (!country) {
+                showFieldError('country', 'Veuillez sélectionner un pays');
+                hasError = true;
+            }
+            if (!city) {
+                showFieldError('city', 'La ville est requise');
+                hasError = true;
+            }
+            if (!password1) {
+                showFieldError('password1', 'Le mot de passe est requis');
+                hasError = true;
+            } else if (password1.length < 8) {
+                showFieldError('password1', 'Minimum 8 caractères');
+                hasError = true;
+            }
+            if (!password2) {
+                showFieldError('password2', 'Veuillez confirmer le mot de passe');
+                hasError = true;
+            } else if (password1 !== password2) {
+                showFieldError('password2', 'Les mots de passe ne correspondent pas');
+                hasError = true;
+            }
+            if (!terms) {
+                showFieldError('terms', 'Vous devez accepter les conditions');
+                hasError = true;
+            }
+
+            if (hasError) {
+                e.preventDefault();
+                showToast('Veuillez corriger les erreurs ci-dessous', 'error');
+
+                // Scroll to first error
+                const firstError = form.querySelector('.has-error');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return;
+            }
+
+            // Si pas d'erreur, soumettre normalement
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+            // Le formulaire se soumet naturellement
+        });
+    </script>
+</body>
+</html>

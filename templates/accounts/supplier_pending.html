@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Validation en cours - Ktrade Connect</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --gold:#C8962E;--gold-light:#E8C36A;--gold-dark:#A07520;
+            --gold-glow:rgba(200,150,46,0.15);--gold-glow-s:rgba(200,150,46,0.3);
+            --bg:#0A0A0F;--bg-card:rgba(255,255,255,0.03);--bg-card-h:rgba(255,255,255,0.06);
+            --border:rgba(255,255,255,0.08);--border-gold:rgba(200,150,46,0.2);
+            --text:#F5F5F5;--text-s:#8A8A9A;--text-m:#5A5A6A;
+            --success:#22C55E;--success-bg:rgba(34,197,94,0.08);
+            --warning:#F59E0B;--warning-bg:rgba(245,158,11,0.08);
+            --shadow:0 25px 60px -12px rgba(0,0,0,0.5);
+            --r:14px;--rs:10px;--rxs:8px;--tr:0.3s cubic-bezier(0.4,0,0.2,1);
+            --nav-bg:rgba(10,10,15,0.6);--panel-bg:rgba(15,15,22,0.7);
+            --orb1:rgba(245,158,11,0.15);--orb2:rgba(200,150,46,0.12);--orb3:rgba(34,197,94,0.08);
+            --grid-c:rgba(200,150,46,0.025);
+        }
+        @media(prefers-color-scheme:light){
+            :root{
+                --bg:#F8F6F1;--bg-card:rgba(255,255,255,0.75);--bg-card-h:rgba(255,255,255,0.9);
+                --border:rgba(0,0,0,0.1);--border-gold:rgba(200,150,46,0.25);
+                --text:#1A1A2E;--text-s:#5F6578;--text-m:#9CA3AF;
+                --success:#16A34A;--success-bg:rgba(22,163,74,0.07);
+                --warning:#D97706;--warning-bg:rgba(217,119,6,0.07);
+                --shadow:0 25px 60px -12px rgba(0,0,0,0.08);
+                --nav-bg:rgba(248,246,241,0.85);--panel-bg:rgba(255,255,255,0.75);
+                --orb1:rgba(245,158,11,0.1);--orb2:rgba(200,150,46,0.08);--orb3:rgba(34,197,94,0.05);
+                --grid-c:rgba(200,150,46,0.04);
+            }
+        }
+        html{scroll-behavior:smooth}
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+        .ambient{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+        .ambient-orb{position:absolute;border-radius:50%;filter:blur(120px);opacity:.35;animation:oF 25s ease-in-out infinite}
+        .ambient-orb:nth-child(1){width:600px;height:600px;background:radial-gradient(circle,var(--orb1),transparent 70%);top:-20%;left:30%}
+        .ambient-orb:nth-child(2){width:400px;height:400px;background:radial-gradient(circle,var(--orb2),transparent 70%);bottom:-10%;right:-5%;animation-delay:-10s}
+        .ambient-orb:nth-child(3){width:350px;height:350px;background:radial-gradient(circle,var(--orb3),transparent 70%);top:60%;left:10%;animation-delay:-18s}
+        .ambient-grid{position:absolute;inset:0;background-image:linear-gradient(var(--grid-c) 1px,transparent 1px),linear-gradient(90deg,var(--grid-c) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 70% 50% at 50% 50%,black 20%,transparent 100%)}
+        @keyframes oF{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(20px,-30px) scale(1.05)}66%{transform:translate(-25px,20px) scale(.95)}}
+
+        .nav{position:relative;z-index:50;padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(20px);background:var(--nav-bg);border-bottom:1px solid var(--border)}
+        .nav-logo{display:flex;align-items:center;gap:.75rem;text-decoration:none}
+        .nav-logo img{height:44px;width:auto;filter:drop-shadow(0 0 12px rgba(200,150,46,.3))}
+        .nav-logo-text{font-size:1.15rem;font-weight:700;color:var(--text);letter-spacing:-.02em}
+        .nav-logo-text span{color:var(--gold)}
+
+        .pending-page{position:relative;z-index:10;flex:1;display:flex;align-items:center;justify-content:center;padding:3rem 1.5rem}
+
+        .pending-card{max-width:640px;width:100%;background:var(--panel-bg);backdrop-filter:blur(40px);border:1px solid var(--border);border-radius:var(--r);padding:3rem;box-shadow:var(--shadow);animation:cIn .6s ease;position:relative;overflow:hidden}
+        @keyframes cIn{from{opacity:0;transform:translateY(30px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+        .pending-icon-wrap{display:flex;justify-content:center;margin-bottom:2rem}
+        .pending-icon{width:88px;height:88px;border-radius:50%;background:var(--warning-bg);border:2px solid var(--border-gold);display:flex;align-items:center;justify-content:center;position:relative;animation:iP 3s ease-in-out infinite}
+        .pending-icon i{font-size:2rem;color:var(--warning)}
+        .pending-icon::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:1px solid var(--border-gold);animation:rE 3s ease-in-out infinite}
+        @keyframes iP{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+        @keyframes rE{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:0}}
+
+        .pending-heading{text-align:center;margin-bottom:.5rem;font-size:1.65rem;font-weight:700;letter-spacing:-.02em}
+        .pending-sub{text-align:center;color:var(--text-s);font-size:.92rem;margin-bottom:2rem;line-height:1.6}
+        .pending-sub strong{color:var(--success)}
+
+        .success-banner{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;background:var(--success-bg);border:1px solid rgba(34,197,94,.15);border-radius:var(--rxs);margin-bottom:2rem}
+        .success-banner i{color:var(--success);font-size:1.1rem;flex-shrink:0}
+        @media(prefers-color-scheme:light){.success-banner span{color:#166534}}
+        @media(prefers-color-scheme:dark){.success-banner span{color:#86EFAC}}
+        .success-banner span{font-size:.85rem;line-height:1.5}
+
+        .info-block{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rs);padding:1.5rem;margin-bottom:1rem;transition:all var(--tr);backdrop-filter:blur(10px)}
+        .info-block:hover{background:var(--bg-card-h);border-color:rgba(200,150,46,.1)}
+        .info-block-header{display:flex;align-items:center;gap:.6rem;margin-bottom:1rem}
+        .info-block-header i{width:32px;height:32px;border-radius:var(--rxs);display:flex;align-items:center;justify-content:center;font-size:.8rem}
+        .info-block-header h3{font-size:.92rem;font-weight:600}
+        .info-block ul{list-style:none;padding:0}
+        .info-block li{display:flex;align-items:center;gap:.6rem;padding:.5rem 0;font-size:.85rem;color:var(--text-s);border-bottom:1px solid var(--border)}
+        .info-block li:last-child{border-bottom:none}
+        .info-block li i{font-size:.75rem;flex-shrink:0}
+        .ck-i{color:var(--success)}
+        .ct-i{color:var(--gold)}
+
+        .timeline-block{background:var(--warning-bg);border:1px solid var(--border-gold);border-radius:var(--rs);padding:1.25rem;margin-bottom:1rem;text-align:center}
+        .time-icon{font-size:1.5rem;color:var(--warning);margin-bottom:.5rem}
+        .time-label{font-size:.82rem;color:var(--text-m);margin-bottom:.3rem}
+        .time-value{font-size:1.1rem;font-weight:700;color:var(--gold-light)}
+
+        .progress-steps{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:2rem;padding:0 1rem}
+        .step{display:flex;flex-direction:column;align-items:center;gap:.5rem;flex:1;position:relative}
+        .step-circle{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;position:relative;z-index:2;transition:all var(--tr)}
+        .step-circle.done{background:var(--success);color:var(--bg);box-shadow:0 0 20px rgba(34,197,94,.3)}
+        .step-circle.active{background:var(--warning-bg);border:2px solid var(--warning);color:var(--warning);animation:iP 3s ease-in-out infinite}
+        .step-circle.pending{background:var(--bg-card);border:2px solid var(--border);color:var(--text-m)}
+        .step-label{font-size:.72rem;color:var(--text-m);text-align:center;font-weight:500}
+        .step-label.a-l{color:var(--warning)}
+        .step-label.d-l{color:var(--success)}
+        .step-line{flex:1;height:2px;background:var(--border);margin-top:-1.2rem}
+        .step-line.done{background:var(--success)}
+        .step-line.active{background:linear-gradient(90deg,var(--success),var(--warning));background-size:200% 100%;animation:lS 2s linear infinite}
+        @keyframes lS{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+        .pending-actions{display:flex;gap:.75rem;margin-top:2rem}
+        .btn{flex:1;padding:.85rem 1.25rem;border-radius:var(--rxs);text-decoration:none;font-weight:600;font-size:.88rem;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:all var(--tr);border:none}
+        .btn-primary{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:var(--bg);position:relative;overflow:hidden}
+        .btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--gold-light),var(--gold));opacity:0;transition:opacity var(--tr)}
+        .btn-primary:hover::before{opacity:1}
+        .btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 25px rgba(200,150,46,.25)}
+        .btn-primary span,.btn-primary i{position:relative;z-index:1}
+        .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text-s)}
+        .btn-outline:hover{border-color:var(--gold);color:var(--gold-light);background:var(--gold-glow);transform:translateY(-1px)}
+
+        .particles{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:var(--r)}
+        .particle{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--gold);opacity:0;animation:pF 4s ease-in-out infinite}
+        @keyframes pF{0%{opacity:0;transform:translateY(0) scale(0)}20%{opacity:.5;transform:translateY(-20px) scale(1)}100%{opacity:0;transform:translateY(-80px) scale(.3)}}
+
+        @media(max-width:640px){
+            .nav{padding:1rem 1.25rem}
+            .pending-card{padding:2rem 1.5rem}
+            .pending-heading{font-size:1.4rem}
+            .pending-actions{flex-direction:column}
+            .step-label{font-size:.65rem}
+            .step-circle{width:34px;height:34px;font-size:.7rem}
+        }
+        @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+    </style>
+</head>
+<body>
+    <div class="ambient" aria-hidden="true"><div class="ambient-orb"></div><div class="ambient-orb"></div><div class="ambient-orb"></div><div class="ambient-grid"></div></div>
+
+    <nav class="nav">
+        <a href="/" class="nav-logo">
+            <img src="https://z-cdn-media.chatglm.cn/files/e22e85cc-ae49-4c84-b424-50563a171469.png?auth_key=1878494067-cf1aaf8c969d44ebb1959bdfaacec9f7-0-25e6708f29fb96ae5c39f931690c0c23" alt="Ktrade Connect">
+            <span class="nav-logo-text">Ktrade <span>Connect</span></span>
+        </a>
+    </nav>
+
+    <div class="pending-page">
+        <div class="pending-card">
+            <div class="particles" aria-hidden="true" id="particles"></div>
+
+            <div class="pending-icon-wrap">
+                <div class="pending-icon"><i class="fas fa-hourglass-half"></i></div>
+            </div>
+
+            <h1 class="pending-heading">Compte en cours de validation</h1>
+            <p class="pending-sub">Votre compte fournisseur a été créé <strong>avec succès</strong>.<br>Notre équipe vérifie actuellement votre profil.</p>
+
+            <div class="success-banner">
+                <i class="fas fa-circle-check"></i>
+                <span>Inscription terminée ! Vous recevrez un email de confirmation dès que votre compte sera activé.</span>
+            </div>
+
+            <div class="progress-steps">
+                <div class="step"><div class="step-circle done"><i class="fas fa-check"></i></div><span class="step-label d-l">Inscription</span></div>
+                <div class="step-line done"></div>
+                <div class="step"><div class="step-circle active"><i class="fas fa-search"></i></div><span class="step-label a-l">Vérification</span></div>
+                <div class="step-line active"></div>
+                <div class="step"><div class="step-circle pending"><i class="fas fa-check-double"></i></div><span class="step-label">Activation</span></div>
+            </div>
+
+            <div class="info-block">
+                <div class="info-block-header"><i class="fas fa-clipboard-check ck-i" style="background:var(--success-bg)"></i><h3>Ce que nous vérifions</h3></div>
+                <ul>
+                    <li><i class="fas fa-check ck-i"></i> Vos informations professionnelles</li>
+                    <li><i class="fas fa-check ck-i"></i> L'existence et les détails de votre entreprise</li>
+                    <li><i class="fas fa-check ck-i"></i> Vos coordonnées de contact</li>
+                    <li><i class="fas fa-check ck-i"></i> La conformité avec nos conditions d'utilisation</li>
+                </ul>
+            </div>
+
+            <div class="timeline-block">
+                <div class="time-icon"><i class="fas fa-clock"></i></div>
+                <div class="time-label">Délai de validation estimé</div>
+                <div class="time-value">24 à 48 heures ouvrées</div>
+            </div>
+
+            <div class="info-block">
+                <div class="info-block-header"><i class="fas fa-address-book ct-i" style="background:var(--gold-glow)"></i><h3>Nous vous contacterons via</h3></div>
+                <ul>
+                    <li><i class="fas fa-envelope ct-i"></i> votreadresse@email.com</li>
+                    <li><i class="fas fa-phone ct-i"></i> +225 00 00 00 00</li>
+                </ul>
+            </div>
+
+            <div class="pending-actions">
+                <a href="/" class="btn btn-primary"><i class="fas fa-home"></i><span>Retour à l'accueil</span></a>
+                <a href="mailto:support@ktradeconnect.com" class="btn btn-outline"><i class="fas fa-envelope"></i><span>Contacter le support</span></a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function(){const c=document.getElementById('particles');if(!c)return;for(let i=0;i<15;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.top=60+Math.random()*40+'%';p.style.animationDelay=Math.random()*4+'s';p.style.animationDuration=3+Math.random()*3+'s';const s=2+Math.random()*3;p.style.width=s+'px';p.style.height=s+'px';c.appendChild(p)}})();
+    </script>
+</body>
+</html>

@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     
     # Nos apps
-    'accounts.apps.AccountsConfig',  # Utilisez le chemin complet
+    'accounts.apps.AccountsConfig',
     'marketplace',
     'chat',
 ]
@@ -44,7 +44,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',  # Important pour allauth
+    'allauth.account.middleware.AccountMiddleware',
+    'accounts.middleware.SupplierApprovalMiddleware',
 ]
 
 ROOT_URLCONF = 'ktrade_project.urls'
@@ -110,23 +111,25 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',  # Backend allauth
 ]
 
-# Configuration de django-allauth
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
+# Configuration de django-allauth (NOUVELLE VERSION 0.60+)
+ACCOUNT_LOGIN_METHODS = {'email'}  # Authentification par email
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']  # Champs obligatoires à l'inscription
 ACCOUNT_EMAIL_VERIFICATION = 'none'  # Mettre 'mandatory' en production
 ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
-ACCOUNT_USERNAME_MIN_LENGTH = 3
+
+# Ces paramètres sont dépréciés dans la nouvelle version mais gardés pour compatibilité
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # Plus nécessaire car on n'utilise plus username
+ACCOUNT_USERNAME_REQUIRED = False  # Gardé pour compatibilité
 
 # Redirection après connexion
-LOGIN_REDIRECT_URL = '/'  # Sera overridé par l'adapter
-LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = 'home'  # Redirection après connexion
+LOGIN_URL = 'custom-login'  # Utilisez votre vue de connexion personnalisée
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_ON_GET = True  # Déconnexion sans confirmation
 
-# Adapter personnalisé
+# Adapters personnalisés
 ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'accounts.adapters.CustomSocialAccountAdapter'
 
 # Configuration des providers sociaux
 SOCIALACCOUNT_PROVIDERS = {
@@ -151,29 +154,6 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-# Paramètres de session
-SESSION_COOKIE_AGE = 1209600  # 2 semaines en secondes
-SESSION_SAVE_EVERY_REQUEST = True
-
-# Messages
-from django.contrib.messages import constants as messages
-MESSAGE_TAGS = {
-    messages.ERROR: 'danger',
-}
-
-# ktrade_project/settings.py
-
-# Formulaire personnalisé pour l'inscription sociale
-SOCIALACCOUNT_FORMS = {
-    'signup': 'accounts.forms.CustomSocialSignupForm',
-}
-
-# Désactiver l'inscription automatique (pour forcer le formulaire)
-SOCIALACCOUNT_AUTO_SIGNUP = False
-
-# Demander l'email obligatoirement
-SOCIALACCOUNT_EMAIL_REQUIRED = True# ktrade_project/settings.py
-
 # Formulaire personnalisé pour l'inscription sociale
 SOCIALACCOUNT_FORMS = {
     'signup': 'accounts.forms.CustomSocialSignupForm',
@@ -184,3 +164,13 @@ SOCIALACCOUNT_AUTO_SIGNUP = False
 
 # Demander l'email obligatoirement
 SOCIALACCOUNT_EMAIL_REQUIRED = True
+
+# Paramètres de session
+SESSION_COOKIE_AGE = 1209600  # 2 semaines en secondes
+SESSION_SAVE_EVERY_REQUEST = True
+
+# Messages
+from django.contrib.messages import constants as messages
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger',
+}

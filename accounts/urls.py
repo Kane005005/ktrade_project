@@ -1,4 +1,4 @@
-
+# accounts/urls.py
 from django.urls import path
 from . import views
 
@@ -11,4 +11,5 @@ urlpatterns = [
     path('profile/api/update/', views.profile_update_api, name='profile-update-api'), 
     path('logout/', views.custom_logout, name='custom-logout'),
     path('change-password/', views.change_password, name='change-password'),
+    path('supplier-pending/', views.supplier_pending, name='supplier-pending'),
 ]

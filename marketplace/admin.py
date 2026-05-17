@@ -1,7 +1,13 @@
+# marketplace/admin.py
 from django.contrib import admin
 from django.utils.html import format_html
+from django.urls import reverse
 from .models import Category, Product, Request, Favorite
 
+
+# ============================================
+# CATEGORY ADMIN
+# ============================================
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'icon_display', 'product_count')
@@ -18,6 +24,10 @@ class CategoryAdmin(admin.ModelAdmin):
         return obj.products.count()
     product_count.short_description = 'Nb produits'
 
+
+# ============================================
+# PRODUCT ADMIN
+# ============================================
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'supplier_link', 'category', 'estimated_price', 'price_currency', 
@@ -48,8 +58,8 @@ class ProductAdmin(admin.ModelAdmin):
     )
     
     def supplier_link(self, obj):
-        return format_html('<a href="/admin/auth/user/{}/change/">{}</a>', 
-                          obj.supplier.id, obj.supplier.username)
+        url = reverse('admin:auth_user_change', args=[obj.supplier.id])
+        return format_html('<a href="{}">{}</a>', url, obj.supplier.username)
     supplier_link.short_description = 'Fournisseur'
     
     def image_preview(self, obj):
@@ -62,15 +72,19 @@ class ProductAdmin(admin.ModelAdmin):
     actions = ['activate_products', 'deactivate_products']
     
     def activate_products(self, request, queryset):
-        queryset.update(is_active=True)
-        self.message_user(request, f"{queryset.count()} produits activés avec succès.")
+        updated = queryset.update(is_active=True)
+        self.message_user(request, f"{updated} produits activés avec succès.")
     activate_products.short_description = "Activer les produits sélectionnés"
     
     def deactivate_products(self, request, queryset):
-        queryset.update(is_active=False)
-        self.message_user(request, f"{queryset.count()} produits désactivés avec succès.")
+        updated = queryset.update(is_active=False)
+        self.message_user(request, f"{updated} produits désactivés avec succès.")
     deactivate_products.short_description = "Désactiver les produits sélectionnés"
 
+
+# ============================================
+# REQUEST ADMIN
+# ============================================
 @admin.register(Request)
 class RequestAdmin(admin.ModelAdmin):
     list_display = ('product_name', 'buyer_link', 'category', 'desired_quantity', 
@@ -101,22 +115,26 @@ class RequestAdmin(admin.ModelAdmin):
     )
     
     def buyer_link(self, obj):
-        return format_html('<a href="/admin/auth/user/{}/change/">{}</a>', 
-                          obj.buyer.id, obj.buyer.username)
+        url = reverse('admin:auth_user_change', args=[obj.buyer.id])
+        return format_html('<a href="{}">{}</a>', url, obj.buyer.username)
     buyer_link.short_description = 'Acheteur'
     
     actions = ['activate_requests', 'deactivate_requests']
     
     def activate_requests(self, request, queryset):
-        queryset.update(is_active=True)
-        self.message_user(request, f"{queryset.count()} demandes activées avec succès.")
+        updated = queryset.update(is_active=True)
+        self.message_user(request, f"{updated} demandes activées avec succès.")
     activate_requests.short_description = "Activer les demandes sélectionnées"
     
     def deactivate_requests(self, request, queryset):
-        queryset.update(is_active=False)
-        self.message_user(request, f"{queryset.count()} demandes désactivées avec succès.")
+        updated = queryset.update(is_active=False)
+        self.message_user(request, f"{updated} demandes désactivées avec succès.")
     deactivate_requests.short_description = "Désactiver les demandes sélectionnées"
 
+
+# ============================================
+# FAVORITE ADMIN
+# ============================================
 @admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = ('user', 'item_display', 'created_at')
@@ -126,10 +144,10 @@ class FavoriteAdmin(admin.ModelAdmin):
     
     def item_display(self, obj):
         if obj.product:
-            return format_html('Produit: <a href="/admin/marketplace/product/{}/change/">{}</a>', 
-                             obj.product.id, obj.product.name)
+            url = reverse('admin:marketplace_product_change', args=[obj.product.id])
+            return format_html('Produit: <a href="{}">{}</a>', url, obj.product.name)
         elif obj.request:
-            return format_html('Demande: <a href="/admin/marketplace/request/{}/change/">{}</a>', 
-                             obj.request.id, obj.request.product_name)
+            url = reverse('admin:marketplace_request_change', args=[obj.request.id])
+            return format_html('Demande: <a href="{}">{}</a>', url, obj.request.product_name)
         return "-"
     item_display.short_description = 'Élément favori'
